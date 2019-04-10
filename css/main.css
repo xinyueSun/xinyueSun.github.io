@@ -486,7 +486,7 @@ pre,
   overflow: auto;
   margin: 20px 0;
   padding: 0;
-  font-size: 13px;
+  font-size: 15px;
   color: #4d4d4c;
   background: #f7f7f7;
   line-height: 1.6;
@@ -498,10 +498,10 @@ code {
 code {
   padding: 2px 4px;
   word-wrap: break-word;
-  color: #555;
+  color: #d05;
   background: #eee;
-  border-radius: 3px;
-  font-size: 13px;
+  border-radius: 4px;
+  font-size: 15px;
 }
 pre {
   padding: 10px;
@@ -1822,7 +1822,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #bf8cff;
+  background: #5487a8;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -2390,6 +2390,9 @@ pre .javascript .function {
 }
 .-hoofoo-share-weixin:hover {
   background-color: #18a01a;
+}
+.-hoofoo-share-qq:hover {
+  background-color: #950c0c;
 }
 .-hoofoo-share-twitter:hover {
   background-color: #2ab3e6;
