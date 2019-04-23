@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Note of xinyueSun" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="摘要提出了专门解决分布式DL training job的GPU集群管理器Tiresias，它通过有效调度和放置DL job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法：1. 调度算法1： Discretized Two-Dimensional Gittins index–依赖部分jop信息2. 调度算法2： Discretized Two-Dimensi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tiresias：A GPU Cluster Manager for Distributed Deep Learning">
+<meta property="og:url" content="http://sunxinyue.top/2019/04/23/Tiresias： A GPU Cluster Manager for Distributed Deep Learning/index.html">
+<meta property="og:site_name" content="Note of xinyueSun">
+<meta property="og:description" content="摘要提出了专门解决分布式DL training job的GPU集群管理器Tiresias，它通过有效调度和放置DL job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法：1. 调度算法1： Discretized Two-Dimensional Gittins index–依赖部分jop信息2. 调度算法2： Discretized Two-Dimensi">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-23T06:22:47.970Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tiresias：A GPU Cluster Manager for Distributed Deep Learning">
+<meta name="twitter:description" content="摘要提出了专门解决分布式DL training job的GPU集群管理器Tiresias，它通过有效调度和放置DL job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法：1. 调度算法1： Discretized Two-Dimensional Gittins index–依赖部分jop信息2. 调度算法2： Discretized Two-Dimensi">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://sunxinyue.top/2019/04/23/Tiresias： A GPU Cluster Manager for Distributed Deep Learning/">
+
+
+
+
+
+  <title>Tiresias：A GPU Cluster Manager for Distributed Deep Learning | Note of xinyueSun</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+  
+	<script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Note of xinyueSun</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://sunxinyue.top/2019/04/23/Tiresias： A GPU Cluster Manager for Distributed Deep Learning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xinyueSun">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/background.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Note of xinyueSun">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Tiresias：A GPU Cluster Manager for Distributed Deep Learning</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-23T14:17:23+08:00">
+                2019-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+		  
+		<!-- 在下面的位置加上如下代码 -->
+		<span id="busuanzi_container_page_pv">
+			&nbsp; | &nbsp; 热度&nbsp; <span id="busuanzi_value_page_pv"></span>°C
+		</span>
+		<!-- 在上面的位置加上如上代码 -->    
+		
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><h2 id="提出了专门解决分布式DL-training-job的GPU集群管理器Tiresias，它通过有效调度和放置DL-job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法："><a href="#提出了专门解决分布式DL-training-job的GPU集群管理器Tiresias，它通过有效调度和放置DL-job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法：" class="headerlink" title="提出了专门解决分布式DL training job的GPU集群管理器Tiresias，它通过有效调度和放置DL job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法："></a>提出了专门解决分布式DL training job的GPU集群管理器Tiresias，它通过有效调度和放置DL job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法：</h2><h3 id="1-调度算法1：-Discretized-Two-Dimensional-Gittins-index–依赖部分jop信息"><a href="#1-调度算法1：-Discretized-Two-Dimensional-Gittins-index–依赖部分jop信息" class="headerlink" title="1. 调度算法1： Discretized Two-Dimensional Gittins index–依赖部分jop信息"></a>1. 调度算法1： Discretized Two-Dimensional Gittins index–依赖部分jop信息</h3><h3 id="2-调度算法2：-Discretized-Two-Dimensional-LAS–不需要任何信息"><a href="#2-调度算法2：-Discretized-Two-Dimensional-LAS–不需要任何信息" class="headerlink" title="2. 调度算法2： Discretized Two-Dimensional LAS–不需要任何信息"></a>2. 调度算法2： Discretized Two-Dimensional LAS–不需要任何信息</h3><h4 id="调度算法的目标是降低平均JCT。"><a href="#调度算法的目标是降低平均JCT。" class="headerlink" title="调度算法的目标是降低平均JCT。"></a>调度算法的目标是降低平均JCT。</h4><h3 id="3-放置算法：-提出整合放置约束何时被重新定义-？？"><a href="#3-放置算法：-提出整合放置约束何时被重新定义-？？" class="headerlink" title="3. 放置算法： 提出整合放置约束何时被重新定义  ？？"></a>3. 放置算法： 提出整合放置约束何时被重新定义  ？？</h3><h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><h2 id="job调度和GPU放置工作目标是降低集群的平均JCT和最大化资源GPU利用率。"><a href="#job调度和GPU放置工作目标是降低集群的平均JCT和最大化资源GPU利用率。" class="headerlink" title="job调度和GPU放置工作目标是降低集群的平均JCT和最大化资源GPU利用率。"></a>job调度和GPU放置工作目标是降低集群的平均JCT和最大化资源GPU利用率。</h2><h2 id="主要存在两个挑战："><a href="#主要存在两个挑战：" class="headerlink" title="主要存在两个挑战："></a>主要存在两个挑战：</h2><h3 id="1-在不知道训练任务执行时间的情况下，调度工作效果差。以前的工作主要是假设任务执行时间是已知的，但是在真实环境下并不适用。"><a href="#1-在不知道训练任务执行时间的情况下，调度工作效果差。以前的工作主要是假设任务执行时间是已知的，但是在真实环境下并不适用。" class="headerlink" title="1. 在不知道训练任务执行时间的情况下，调度工作效果差。以前的工作主要是假设任务执行时间是已知的，但是在真实环境下并不适用。"></a>1. 在不知道训练任务执行时间的情况下，调度工作效果差。以前的工作主要是假设任务执行时间是已知的，但是在真实环境下并不适用。</h3><h3 id="2-在放置过程中过度的整合。以前的工作认为网络性能是系统的瓶颈，本文发现这可能只是一部分。"><a href="#2-在放置过程中过度的整合。以前的工作认为网络性能是系统的瓶颈，本文发现这可能只是一部分。" class="headerlink" title="2. 在放置过程中过度的整合。以前的工作认为网络性能是系统的瓶颈，本文发现这可能只是一部分。"></a>2. 在放置过程中过度的整合。以前的工作认为网络性能是系统的瓶颈，本文发现这可能只是一部分。</h3><h2 id="为了解决这两个挑战，提出了Tiresias："><a href="#为了解决这两个挑战，提出了Tiresias：" class="headerlink" title="为了解决这两个挑战，提出了Tiresias："></a>为了解决这两个挑战，提出了Tiresias：</h2><h3 id="ideal-1-提出了一个新的调度框架2DAS-它可以在Job工作时间未知的前提下最小化JCT。主要包括2个调度算法：Discretized-2D-LAS-和-Discretized-2D-Gittin-index"><a href="#ideal-1-提出了一个新的调度框架2DAS-它可以在Job工作时间未知的前提下最小化JCT。主要包括2个调度算法：Discretized-2D-LAS-和-Discretized-2D-Gittin-index" class="headerlink" title="ideal 1. 提出了一个新的调度框架2DAS, 它可以在Job工作时间未知的前提下最小化JCT。主要包括2个调度算法：Discretized 2D-LAS 和 Discretized 2D-Gittin index."></a>ideal 1. 提出了一个新的调度框架2DAS, 它可以在Job工作时间未知的前提下最小化JCT。主要包括2个调度算法：Discretized 2D-LAS 和 Discretized 2D-Gittin index.</h3><h4 id="Discretized-2D-LAS-应用于信息未知场景。LAS-Least-Attained-Service"><a href="#Discretized-2D-LAS-应用于信息未知场景。LAS-Least-Attained-Service" class="headerlink" title="Discretized 2D-LAS:应用于信息未知场景。LAS(Least-Attained Service)"></a>Discretized 2D-LAS:应用于信息未知场景。LAS(<a href="http://users.cms.caltech.edu/~adamw/papers/fb-survey.pdf" target="_blank" rel="noopener">Least-Attained Service</a>)</h4><h4 id="Discretized-2D-Gittin-当JCT分布是已知时，Gittin-index是单服务器场景最小化平均JCT最好的方法“On-the-gittins-index-in-the-m-g-1-queue”-Multi-armed-bandit-allocation-indices"><a href="#Discretized-2D-Gittin-当JCT分布是已知时，Gittin-index是单服务器场景最小化平均JCT最好的方法“On-the-gittins-index-in-the-m-g-1-queue”-Multi-armed-bandit-allocation-indices" class="headerlink" title="Discretized 2D-Gittin:当JCT分布是已知时，Gittin index是单服务器场景最小化平均JCT最好的方法“On the gittins index in the m/g/1 queue”/Multi-armed bandit allocation indices"></a>Discretized 2D-Gittin:当JCT分布是已知时，Gittin index是单服务器场景最小化平均JCT最好的方法<a href="https://www.researchgate.net/publication/227211838_On_the_Gittins_index_in_the_MG1_queue" target="_blank" rel="noopener">“On the gittins index in the m/g/1 queue”</a>/Multi-armed bandit allocation indices</h4><h4 id="两者都为每个Job分配了优先级，前者采用Gittins-index-后者采用Job已经接收到的服务分配优先级。并按照优先级的顺序安排JOB。"><a href="#两者都为每个Job分配了优先级，前者采用Gittins-index-后者采用Job已经接收到的服务分配优先级。并按照优先级的顺序安排JOB。" class="headerlink" title="两者都为每个Job分配了优先级，前者采用Gittins index,后者采用Job已经接收到的服务分配优先级。并按照优先级的顺序安排JOB。"></a>两者都为每个Job分配了优先级，前者采用Gittins index,后者采用Job已经接收到的服务分配优先级。并按照优先级的顺序安排JOB。</h4><h4 id="在分配优先级时，需要同时考虑空间维度（GPU数目）和时间维度（多长时间）。此外，还需考虑随着job接收到新的服务，job的优先级处于不断改变的状态，这会使得job不断地抢占。为了避免这个问题，为上述算法设定了优先级离散化–实现Job的优先级再固定时间间隔后才能发生变化。"><a href="#在分配优先级时，需要同时考虑空间维度（GPU数目）和时间维度（多长时间）。此外，还需考虑随着job接收到新的服务，job的优先级处于不断改变的状态，这会使得job不断地抢占。为了避免这个问题，为上述算法设定了优先级离散化–实现Job的优先级再固定时间间隔后才能发生变化。" class="headerlink" title="在分配优先级时，需要同时考虑空间维度（GPU数目）和时间维度（多长时间）。此外，还需考虑随着job接收到新的服务，job的优先级处于不断改变的状态，这会使得job不断地抢占。为了避免这个问题，为上述算法设定了优先级离散化–实现Job的优先级再固定时间间隔后才能发生变化。"></a>在分配优先级时，需要同时考虑空间维度（GPU数目）和时间维度（多长时间）。此外，还需考虑随着job接收到新的服务，job的优先级处于不断改变的状态，这会使得job不断地抢占。为了避免这个问题，为上述算法设定了优先级离散化–实现Job的优先级再固定时间间隔后才能发生变化。</h4><h2 id="应用：当没有先验知识时，将应用Discretized-2D-LAS，否则用Discretized-2D-Gittins-index。"><a href="#应用：当没有先验知识时，将应用Discretized-2D-LAS，否则用Discretized-2D-Gittins-index。" class="headerlink" title="应用：当没有先验知识时，将应用Discretized 2D-LAS，否则用Discretized 2D-Gittins index。"></a>应用：当没有先验知识时，将应用Discretized 2D-LAS，否则用Discretized 2D-Gittins index。</h2><h3 id="ideal2：通过模型结构化去释放放置约束"><a href="#ideal2：通过模型结构化去释放放置约束" class="headerlink" title="ideal2：通过模型结构化去释放放置约束"></a>ideal2：通过模型结构化去释放放置约束</h3><h4 id="某些类型的DLmodel对是否整合敏感，这是因为模型中tensor大小分布偏差所导致的。基于此，将job分成对合并敏感job（高度偏差）和其他job。"><a href="#某些类型的DLmodel对是否整合敏感，这是因为模型中tensor大小分布偏差所导致的。基于此，将job分成对合并敏感job（高度偏差）和其他job。" class="headerlink" title="某些类型的DLmodel对是否整合敏感，这是因为模型中tensor大小分布偏差所导致的。基于此，将job分成对合并敏感job（高度偏差）和其他job。"></a>某些类型的DLmodel对是否整合敏感，这是因为模型中tensor大小分布偏差所导致的。基于此，将job分成对合并敏感job（高度偏差）和其他job。</h4><h4 id="Tiresias实现了一个RDMA网络分析库，它可以通过网络等级的活动决定DDLjob的model结构。"><a href="#Tiresias实现了一个RDMA网络分析库，它可以通过网络等级的活动决定DDLjob的model结构。" class="headerlink" title="Tiresias实现了一个RDMA网络分析库，它可以通过网络等级的活动决定DDLjob的model结构。"></a>Tiresias实现了一个<a href="https://baike.baidu.com/item/RDMA/1453093?fr=aladdin" target="_blank" rel="noopener">RDMA</a>网络分析库，它可以通过网络等级的活动决定DDLjob的model结构。</h4><h2 id="在Microsoft数据集，真实集群下实现了Tiresias。"><a href="#在Microsoft数据集，真实集群下实现了Tiresias。" class="headerlink" title="在Microsoft数据集，真实集群下实现了Tiresias。"></a>在Microsoft数据集，真实集群下实现了Tiresias。</h2><h2 id="总贡献：1-提出了在未知信息下的资源调度。2-将二维扩展（空间和时间）和优先级离散应用于job调度。3-在存在先验知识的情况下，也可以利用先验知识完成调度。4-利用可观察的模型标准来确定合适降低Worker的约束。5-易于布置。"><a href="#总贡献：1-提出了在未知信息下的资源调度。2-将二维扩展（空间和时间）和优先级离散应用于job调度。3-在存在先验知识的情况下，也可以利用先验知识完成调度。4-利用可观察的模型标准来确定合适降低Worker的约束。5-易于布置。" class="headerlink" title="总贡献：1.提出了在未知信息下的资源调度。2. 将二维扩展（空间和时间）和优先级离散应用于job调度。3.在存在先验知识的情况下，也可以利用先验知识完成调度。4. 利用可观察的模型标准来确定合适降低Worker的约束。5. 易于布置。"></a>总贡献：1.提出了在未知信息下的资源调度。2. 将二维扩展（空间和时间）和优先级离散应用于job调度。3.在存在先验知识的情况下，也可以利用先验知识完成调度。4. 利用可观察的模型标准来确定合适降低Worker的约束。5. 易于布置。</h2><h1 id="背景与动机"><a href="#背景与动机" class="headerlink" title="背景与动机"></a>背景与动机</h1><h2 id="分布式深度学习"><a href="#分布式深度学习" class="headerlink" title="分布式深度学习"></a>分布式深度学习</h2><h3 id="主要是针对其中的数据并行问题：worker（一个GPU）处理本地DL模型副本。"><a href="#主要是针对其中的数据并行问题：worker（一个GPU）处理本地DL模型副本。" class="headerlink" title="主要是针对其中的数据并行问题：worker（一个GPU）处理本地DL模型副本。"></a>主要是针对其中的数据并行问题：worker（一个GPU）处理本地DL模型副本。</h3><h4 id="所有jobs在同步模型下的收敛速度高于异步模型，因此worker处理job时，将数据集分成等大小。"><a href="#所有jobs在同步模型下的收敛速度高于异步模型，因此worker处理job时，将数据集分成等大小。" class="headerlink" title="所有jobs在同步模型下的收敛速度高于异步模型，因此worker处理job时，将数据集分成等大小。"></a>所有jobs在同步模型下的收敛速度高于异步模型，因此worker处理job时，将数据集分成等大小。</h4><h3 id="周期性迭代机制："><a href="#周期性迭代机制：" class="headerlink" title="周期性迭代机制："></a>周期性迭代机制：</h3><h4 id="深度学习任务是通过迭代工作的。worker节点首先通过forward-backward计算数据集中的一个块，然后worker节点合计本地结果更新每一个DL模型–model-aggregation。"><a href="#深度学习任务是通过迭代工作的。worker节点首先通过forward-backward计算数据集中的一个块，然后worker节点合计本地结果更新每一个DL模型–model-aggregation。" class="headerlink" title="深度学习任务是通过迭代工作的。worker节点首先通过forward-backward计算数据集中的一个块，然后worker节点合计本地结果更新每一个DL模型–model aggregation。"></a>深度学习任务是通过迭代工作的。worker节点首先通过forward-backward计算数据集中的一个块，然后worker节点合计本地结果更新每一个DL模型–model aggregation。</h4><h4 id="在迭代过程中计算负载和通信量完全相同，因此DDLjob的迭代时间可被预测。"><a href="#在迭代过程中计算负载和通信量完全相同，因此DDLjob的迭代时间可被预测。" class="headerlink" title="在迭代过程中计算负载和通信量完全相同，因此DDLjob的迭代时间可被预测。"></a>在迭代过程中计算负载和通信量完全相同，因此DDLjob的迭代时间可被预测。</h4><h3 id="参数服务器（PS）架构："><a href="#参数服务器（PS）架构：" class="headerlink" title="参数服务器（PS）架构："></a>参数服务器（PS）架构：</h3><h4 id="参数服务器架构是进行model-aggregation最流行的方法。"><a href="#参数服务器架构是进行model-aggregation最流行的方法。" class="headerlink" title="参数服务器架构是进行model aggregation最流行的方法。"></a>参数服务器架构是进行model aggregation最流行的方法。</h4><h4 id="PS托管DL模型的主副本，它使用所有的worker的本地结果去更新模型。在每次迭代开始前，worker从PS上取回更新后的模型。对于单个DDLjob可以存在多个PS。"><a href="#PS托管DL模型的主副本，它使用所有的worker的本地结果去更新模型。在每次迭代开始前，worker从PS上取回更新后的模型。对于单个DDLjob可以存在多个PS。" class="headerlink" title="PS托管DL模型的主副本，它使用所有的worker的本地结果去更新模型。在每次迭代开始前，worker从PS上取回更新后的模型。对于单个DDLjob可以存在多个PS。"></a>PS托管DL模型的主副本，它使用所有的worker的本地结果去更新模型。在每次迭代开始前，worker从PS上取回更新后的模型。对于单个DDLjob可以存在多个PS。</h4><h3 id="反复实验过程："><a href="#反复实验过程：" class="headerlink" title="反复实验过程："></a>反复实验过程：</h3><h4 id="训练一个DL模型是一个反复实验的过程。DL模型暴露出许多表达模型高级属性的超参数。为了得到更高质量的模型，需要在一个巨大的搜索空间中找到更好的超参数组合–hyperparameter-tuning。AutoML常被用于调参数，但在实际中，很多模型都不能很好的收敛，它们需要被删除。"><a href="#训练一个DL模型是一个反复实验的过程。DL模型暴露出许多表达模型高级属性的超参数。为了得到更高质量的模型，需要在一个巨大的搜索空间中找到更好的超参数组合–hyperparameter-tuning。AutoML常被用于调参数，但在实际中，很多模型都不能很好的收敛，它们需要被删除。" class="headerlink" title="训练一个DL模型是一个反复实验的过程。DL模型暴露出许多表达模型高级属性的超参数。为了得到更高质量的模型，需要在一个巨大的搜索空间中找到更好的超参数组合–hyperparameter tuning。AutoML常被用于调参数，但在实际中，很多模型都不能很好的收敛，它们需要被删除。"></a>训练一个DL模型是一个反复实验的过程。DL模型暴露出许多表达模型高级属性的超参数。为了得到更高质量的模型，需要在一个巨大的搜索空间中找到更好的超参数组合–hyperparameter tuning。AutoML常被用于调参数，但在实际中，很多模型都不能很好的收敛，它们需要被删除。</h4><h2 id="挑战："><a href="#挑战：" class="headerlink" title="挑战："></a>挑战：</h2><h3 id="未知的job执行时间："><a href="#未知的job执行时间：" class="headerlink" title="未知的job执行时间："></a>未知的job执行时间：</h3><h4 id="现有的预测job执行时间的方法都是基于两个条件：-1-光滑的loss曲线；（2）实现-完成训练目标。但是，实际上许多模型并不满足上述两个条件。换句话说，训练模型不一定都会收敛，所以一般都会设定一个最大epoch数目。因此，一个实际的资源管理器应该不依赖准确-loss曲线去预测job执行时间。"><a href="#现有的预测job执行时间的方法都是基于两个条件：-1-光滑的loss曲线；（2）实现-完成训练目标。但是，实际上许多模型并不满足上述两个条件。换句话说，训练模型不一定都会收敛，所以一般都会设定一个最大epoch数目。因此，一个实际的资源管理器应该不依赖准确-loss曲线去预测job执行时间。" class="headerlink" title="现有的预测job执行时间的方法都是基于两个条件：(1)光滑的loss曲线；（2）实现/完成训练目标。但是，实际上许多模型并不满足上述两个条件。换句话说，训练模型不一定都会收敛，所以一般都会设定一个最大epoch数目。因此，一个实际的资源管理器应该不依赖准确/loss曲线去预测job执行时间。"></a>现有的预测job执行时间的方法都是基于两个条件：(1)光滑的loss曲线；（2）实现/完成训练目标。但是，实际上许多模型并不满足上述两个条件。换句话说，训练模型不一定都会收敛，所以一般都会设定一个最大epoch数目。因此，一个实际的资源管理器应该不依赖准确/loss曲线去预测job执行时间。</h4><h3 id="过度的Job整合"><a href="#过度的Job整合" class="headerlink" title="过度的Job整合"></a>过度的Job整合</h3><h4 id="在model-aggregation期间尝试最小化网络通信是分布式训练中常见优化，因为网络可能是性能瓶颈并浪费GPU周期。现有的方法盲目的遵循合并约束，将job的所有部分分配给相同或更小数量的服务器。然而DDLjob会在无法合并时等待，即使集群中有足够的资源，这导致排队延迟和资源利用率低下。"><a href="#在model-aggregation期间尝试最小化网络通信是分布式训练中常见优化，因为网络可能是性能瓶颈并浪费GPU周期。现有的方法盲目的遵循合并约束，将job的所有部分分配给相同或更小数量的服务器。然而DDLjob会在无法合并时等待，即使集群中有足够的资源，这导致排队延迟和资源利用率低下。" class="headerlink" title="在model aggregation期间尝试最小化网络通信是分布式训练中常见优化，因为网络可能是性能瓶颈并浪费GPU周期。现有的方法盲目的遵循合并约束，将job的所有部分分配给相同或更小数量的服务器。然而DDLjob会在无法合并时等待，即使集群中有足够的资源，这导致排队延迟和资源利用率低下。"></a>在model aggregation期间尝试最小化网络通信是分布式训练中常见优化，因为网络可能是性能瓶颈并浪费GPU周期。现有的方法盲目的遵循合并约束，将job的所有部分分配给相同或更小数量的服务器。然而DDLjob会在无法合并时等待，即使集群中有足够的资源，这导致排队延迟和资源利用率低下。</h4><h3 id="抢占时间开销"><a href="#抢占时间开销" class="headerlink" title="抢占时间开销"></a>抢占时间开销</h3><h4 id="由于大量的时间开销，现有的集群不会抢占任务。本文提出的Tiresias会抢占，因此必须考虑抢占开销。"><a href="#由于大量的时间开销，现有的集群不会抢占任务。本文提出的Tiresias会抢占，因此必须考虑抢占开销。" class="headerlink" title="由于大量的时间开销，现有的集群不会抢占任务。本文提出的Tiresias会抢占，因此必须考虑抢占开销。"></a>由于大量的时间开销，现有的集群不会抢占任务。本文提出的Tiresias会抢占，因此必须考虑抢占开销。</h4><h2 id="潜在收益–通过减轻两种虚构的观点"><a href="#潜在收益–通过减轻两种虚构的观点" class="headerlink" title="潜在收益–通过减轻两种虚构的观点"></a>潜在收益–通过减轻两种虚构的观点</h2><h3 id="虚构观点1：离开了精准的job执行时间，job不能被很好的调度。"><a href="#虚构观点1：离开了精准的job执行时间，job不能被很好的调度。" class="headerlink" title="虚构观点1：离开了精准的job执行时间，job不能被很好的调度。"></a>虚构观点1：离开了精准的job执行时间，job不能被很好的调度。</h3><h4 id="DDLjob执行时间不可预测，但是根据历史log中的信息，可以学习它的分布。根据分布信息，Gittins-index-策略可以降低平均JCT。如果不知道分布，LAS算法仍旧可以根据其获得的服务有效地安排工作。"><a href="#DDLjob执行时间不可预测，但是根据历史log中的信息，可以学习它的分布。根据分布信息，Gittins-index-策略可以降低平均JCT。如果不知道分布，LAS算法仍旧可以根据其获得的服务有效地安排工作。" class="headerlink" title="DDLjob执行时间不可预测，但是根据历史log中的信息，可以学习它的分布。根据分布信息，Gittins index 策略可以降低平均JCT。如果不知道分布，LAS算法仍旧可以根据其获得的服务有效地安排工作。"></a>DDLjob执行时间不可预测，但是根据历史log中的信息，可以学习它的分布。根据分布信息，Gittins index 策略可以降低平均JCT。如果不知道分布，LAS算法仍旧可以根据其获得的服务有效地安排工作。</h4><h3 id="虚构观点2：DDLjob应该总是被整合："><a href="#虚构观点2：DDLjob应该总是被整合：" class="headerlink" title="虚构观点2：DDLjob应该总是被整合："></a>虚构观点2：DDLjob应该总是被整合：</h3><h4 id="虽然整合job的位置可以最小化通信时间，但存在部分DDLjob对放置不敏感，这是因为模型结构。"><a href="#虽然整合job的位置可以最小化通信时间，但存在部分DDLjob对放置不敏感，这是因为模型结构。" class="headerlink" title="虽然整合job的位置可以最小化通信时间，但存在部分DDLjob对放置不敏感，这是因为模型结构。"></a>虽然整合job的位置可以最小化通信时间，但存在部分DDLjob对放置不敏感，这是因为模型结构。</h4><h1 id="Tiresias-设计：调度、放置管理器以及job特性分析器"><a href="#Tiresias-设计：调度、放置管理器以及job特性分析器" class="headerlink" title="Tiresias 设计：调度、放置管理器以及job特性分析器"></a>Tiresias 设计：调度、放置管理器以及job特性分析器</h1><h2 id="整体框架：主要的工作负载是DL训练，他同时完成两件事：1-分配GPU给每个独立的Job。2-随时间变化调度多个job。因此它有两个目标：1-以用户为中心。2-以运营商为中心。"><a href="#整体框架：主要的工作负载是DL训练，他同时完成两件事：1-分配GPU给每个独立的Job。2-随时间变化调度多个job。因此它有两个目标：1-以用户为中心。2-以运营商为中心。" class="headerlink" title="整体框架：主要的工作负载是DL训练，他同时完成两件事：1.分配GPU给每个独立的Job。2.随时间变化调度多个job。因此它有两个目标：1.以用户为中心。2.以运营商为中心。"></a>整体框架：主要的工作负载是DL训练，他同时完成两件事：1.分配GPU给每个独立的Job。2.随时间变化调度多个job。因此它有两个目标：1.以用户为中心。2.以运营商为中心。</h2><h3 id="实现目标：1-最小化平均JCT。2-高的GPU利用率。3-平衡用户和运营商的目标。"><a href="#实现目标：1-最小化平均JCT。2-高的GPU利用率。3-平衡用户和运营商的目标。" class="headerlink" title="实现目标：1.最小化平均JCT。2.高的GPU利用率。3.平衡用户和运营商的目标。"></a>实现目标：1.最小化平均JCT。2.高的GPU利用率。3.平衡用户和运营商的目标。</h3><h3 id="限制与假设条件"><a href="#限制与假设条件" class="headerlink" title="限制与假设条件"></a>限制与假设条件</h3><h4 id="在线工作到达：用户在线提交Job，Job的资源需求（PS和worker的数目）是被给出的，但在其到达之前是未知的。模型和数据划分是有DL框架和用户决定，Tiresias只负责资源分配与调度。"><a href="#在线工作到达：用户在线提交Job，Job的资源需求（PS和worker的数目）是被给出的，但在其到达之前是未知的。模型和数据划分是有DL框架和用户决定，Tiresias只负责资源分配与调度。" class="headerlink" title="在线工作到达：用户在线提交Job，Job的资源需求（PS和worker的数目）是被给出的，但在其到达之前是未知的。模型和数据划分是有DL框架和用户决定，Tiresias只负责资源分配与调度。"></a>在线工作到达：用户在线提交Job，Job的资源需求（PS和worker的数目）是被给出的，但在其到达之前是未知的。模型和数据划分是有DL框架和用户决定，Tiresias只负责资源分配与调度。</h4><h4 id="未知的工作执行时间：由于实际上非光滑的曲线和非确定的终止时间，无法预测DLjob的执行时间。但是某些时候可以通过历史log获得job的执行时间分布。"><a href="#未知的工作执行时间：由于实际上非光滑的曲线和非确定的终止时间，无法预测DLjob的执行时间。但是某些时候可以通过历史log获得job的执行时间分布。" class="headerlink" title="未知的工作执行时间：由于实际上非光滑的曲线和非确定的终止时间，无法预测DLjob的执行时间。但是某些时候可以通过历史log获得job的执行时间分布。"></a>未知的工作执行时间：由于实际上非光滑的曲线和非确定的终止时间，无法预测DLjob的执行时间。但是某些时候可以通过历史log获得job的执行时间分布。</h4><h4 id="位置的特定于job的特征：用户不知道也无法控制基础DL框架将张量分配给PS和相应的偏斜程度。"><a href="#位置的特定于job的特征：用户不知道也无法控制基础DL框架将张量分配给PS和相应的偏斜程度。" class="headerlink" title="位置的特定于job的特征：用户不知道也无法控制基础DL框架将张量分配给PS和相应的偏斜程度。"></a>位置的特定于job的特征：用户不知道也无法控制基础DL框架将张量分配给PS和相应的偏斜程度。</h4><h4 id="全有或者全无的资源分配：不想传统的大数据job可以随时调度任务，DL训练job要求所有的PS和worker同时处于活动状态，必须同时分配所有需求的资源。"><a href="#全有或者全无的资源分配：不想传统的大数据job可以随时调度任务，DL训练job要求所有的PS和worker同时处于活动状态，必须同时分配所有需求的资源。" class="headerlink" title="全有或者全无的资源分配：不想传统的大数据job可以随时调度任务，DL训练job要求所有的PS和worker同时处于活动状态，必须同时分配所有需求的资源。"></a>全有或者全无的资源分配：不想传统的大数据job可以随时调度任务，DL训练job要求所有的PS和worker同时处于活动状态，必须同时分配所有需求的资源。</h4><h3 id="Job生命周期"><a href="#Job生命周期" class="headerlink" title="Job生命周期"></a>Job生命周期</h3><h4 id="Tiresias被设计成为一个在特定的DL框架下，具有可以完成上述目标而不需要知道job的资源需求、执行时间、内在特点的能力。"><a href="#Tiresias被设计成为一个在特定的DL框架下，具有可以完成上述目标而不需要知道job的资源需求、执行时间、内在特点的能力。" class="headerlink" title="Tiresias被设计成为一个在特定的DL框架下，具有可以完成上述目标而不需要知道job的资源需求、执行时间、内在特点的能力。"></a>Tiresias被设计成为一个在特定的DL框架下，具有可以完成上述目标而不需要知道job的资源需求、执行时间、内在特点的能力。</h4><h4 id="执行过程：1-用户提交job，此时job的GPU请求已知，并将它放置到等待队列（WAITQUEUE）中。2-Scheduler定期从WAITQUEUE调度job从集群中抢占正在运行的job（基于job到达、job完成、资源可用性变化等事件），并将被抢占job加入WAITQUEUE。3-当第一次启动job或者恢复之前被抢占的job时，Scheduler以来Placement模块去分配GPU。4-如果job是第一次启动，Placement模块首先分析它–Profiler识别job内在特征，例如张量分布的偏斜–以决定是否合并job。"><a href="#执行过程：1-用户提交job，此时job的GPU请求已知，并将它放置到等待队列（WAITQUEUE）中。2-Scheduler定期从WAITQUEUE调度job从集群中抢占正在运行的job（基于job到达、job完成、资源可用性变化等事件），并将被抢占job加入WAITQUEUE。3-当第一次启动job或者恢复之前被抢占的job时，Scheduler以来Placement模块去分配GPU。4-如果job是第一次启动，Placement模块首先分析它–Profiler识别job内在特征，例如张量分布的偏斜–以决定是否合并job。" class="headerlink" title="执行过程：1.用户提交job，此时job的GPU请求已知，并将它放置到等待队列（WAITQUEUE）中。2. Scheduler定期从WAITQUEUE调度job从集群中抢占正在运行的job（基于job到达、job完成、资源可用性变化等事件），并将被抢占job加入WAITQUEUE。3.当第一次启动job或者恢复之前被抢占的job时，Scheduler以来Placement模块去分配GPU。4.如果job是第一次启动，Placement模块首先分析它–Profiler识别job内在特征，例如张量分布的偏斜–以决定是否合并job。"></a>执行过程：1.用户提交job，此时job的GPU请求已知，并将它放置到等待队列（WAITQUEUE）中。2. Scheduler定期从WAITQUEUE调度job从集群中抢占正在运行的job（基于job到达、job完成、资源可用性变化等事件），并将被抢占job加入WAITQUEUE。3.当第一次启动job或者恢复之前被抢占的job时，Scheduler以来Placement模块去分配GPU。4.如果job是第一次启动，Placement模块首先分析它–Profiler识别job内在特征，例如张量分布的偏斜–以决定是否合并job。</h4><h2 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h2><h3 id="本文调度算法的核心目标：1-最小化平均JCT。2-增加集群的利用率。同时3-避免饥饿（无法为job提供足够的GPU资源）"><a href="#本文调度算法的核心目标：1-最小化平均JCT。2-增加集群的利用率。同时3-避免饥饿（无法为job提供足够的GPU资源）" class="headerlink" title="本文调度算法的核心目标：1.最小化平均JCT。2.增加集群的利用率。同时3.避免饥饿（无法为job提供足够的GPU资源）"></a>本文调度算法的核心目标：1.最小化平均JCT。2.增加集群的利用率。同时3.避免饥饿（无法为job提供足够的GPU资源）</h3><h3 id="抢占式调度算法需要满足的目标：1-执行抢占期间，必须避免head-of-line-blocking-HOL-即避免被较大-较长的job线路阻塞了较小-较短的job。"><a href="#抢占式调度算法需要满足的目标：1-执行抢占期间，必须避免head-of-line-blocking-HOL-即避免被较大-较长的job线路阻塞了较小-较短的job。" class="headerlink" title="抢占式调度算法需要满足的目标：1.执行抢占期间，必须避免head of line blocking(HOL),即避免被较大/较长的job线路阻塞了较小/较短的job。"></a>抢占式调度算法需要满足的目标：1.执行抢占期间，必须避免<a href="https://baike.baidu.com/item/HOL/5993141?fr=aladdin" target="_blank" rel="noopener">head of line blocking(HOL)</a>,即避免被较大/较长的job线路阻塞了较小/较短的job。</h3><h3 id="抢占式调度算法主要包括Time-share、SJF、SKTF等类型。例如，被用于DL训练job的Gandiva算法是基于Time-sharing的。基于time-sharing的算法一般被用于公平分享，而不是最小化JCT。由于DL训练时间不确定，SJF-SRTF已不适用。同时，基于大小的启发式算法（job需要多少GPU）也忽略了job执行时间。"><a href="#抢占式调度算法主要包括Time-share、SJF、SKTF等类型。例如，被用于DL训练job的Gandiva算法是基于Time-sharing的。基于time-sharing的算法一般被用于公平分享，而不是最小化JCT。由于DL训练时间不确定，SJF-SRTF已不适用。同时，基于大小的启发式算法（job需要多少GPU）也忽略了job执行时间。" class="headerlink" title="抢占式调度算法主要包括Time-share、SJF、SKTF等类型。例如，被用于DL训练job的Gandiva算法是基于Time-sharing的。基于time-sharing的算法一般被用于公平分享，而不是最小化JCT。由于DL训练时间不确定，SJF/SRTF已不适用。同时，基于大小的启发式算法（job需要多少GPU）也忽略了job执行时间。"></a>抢占式调度算法主要包括<a href="https://en.wikipedia.org/wiki/Time-sharing#Time-sharing" target="_blank" rel="noopener">Time-share</a>、<a href="https://baike.baidu.com/item/sjf/3056507?fr=aladdin" target="_blank" rel="noopener">SJF</a>、<a href="https://www.yiibai.com/os/os-srtf-scheduling-algorithm.html" target="_blank" rel="noopener">SKTF</a>等类型。例如，被用于DL训练job的<a href="https://www.usenix.org/conference/osdi18/presentation/xiao" target="_blank" rel="noopener">Gandiva</a>算法是基于Time-sharing的。基于time-sharing的算法一般被用于公平分享，而不是最小化JCT。由于DL训练时间不确定，SJF/SRTF已不适用。同时，基于大小的启发式算法（job需要多少GPU）也忽略了job执行时间。</h3><h3 id="为什么二维调度？"><a href="#为什么二维调度？" class="headerlink" title="为什么二维调度？"></a>为什么二维调度？</h3><h4 id="在有限的GPU集群上调度DDLjob时，仅考虑空间或时间一个方面是不够的。为证明这个观点，本文在Microsoft数据集上进行了三个算法的实验：1-SF；2-SRTF。3-SRSF。前两者为单维度，最后一个为二维度（剩余服务是job剩余时间和GPU数量的乘积）。"><a href="#在有限的GPU集群上调度DDLjob时，仅考虑空间或时间一个方面是不够的。为证明这个观点，本文在Microsoft数据集上进行了三个算法的实验：1-SF；2-SRTF。3-SRSF。前两者为单维度，最后一个为二维度（剩余服务是job剩余时间和GPU数量的乘积）。" class="headerlink" title="在有限的GPU集群上调度DDLjob时，仅考虑空间或时间一个方面是不够的。为证明这个观点，本文在Microsoft数据集上进行了三个算法的实验：1.SF；2.SRTF。3.SRSF。前两者为单维度，最后一个为二维度（剩余服务是job剩余时间和GPU数量的乘积）。"></a>在有限的GPU集群上调度DDLjob时，仅考虑空间或时间一个方面是不够的。为证明这个观点，本文在Microsoft数据集上进行了三个算法的实验：1.SF；2.SRTF。3.SRSF。前两者为单维度，最后一个为二维度（剩余服务是job剩余时间和GPU数量的乘积）。</h4><h3 id="基于Scheduler的二维到达服务（2DAS）"><a href="#基于Scheduler的二维到达服务（2DAS）" class="headerlink" title="基于Scheduler的二维到达服务（2DAS）"></a>基于Scheduler的二维到达服务（2DAS）</h3><h4 id="2DAS解决了上述问题，它在考虑用于整合的GPU需求的同时，不需要依赖精确的job执行时间来调度DLjob。2DAS归纳经典的least-attained-service（LAS）调度规则和Gittins策略为DLjob调度，并且同时考虑了空间和时间两个方面以及它们有无特点。在高级别，2DAS根据其获得的服务为每个job分配优先级。"><a href="#2DAS解决了上述问题，它在考虑用于整合的GPU需求的同时，不需要依赖精确的job执行时间来调度DLjob。2DAS归纳经典的least-attained-service（LAS）调度规则和Gittins策略为DLjob调度，并且同时考虑了空间和时间两个方面以及它们有无特点。在高级别，2DAS根据其获得的服务为每个job分配优先级。" class="headerlink" title="2DAS解决了上述问题，它在考虑用于整合的GPU需求的同时，不需要依赖精确的job执行时间来调度DLjob。2DAS归纳经典的least-attained-service（LAS）调度规则和Gittins策略为DLjob调度，并且同时考虑了空间和时间两个方面以及它们有无特点。在高级别，2DAS根据其获得的服务为每个job分配优先级。"></a>2DAS解决了上述问题，它在考虑用于整合的GPU需求的同时，不需要依赖精确的job执行时间来调度DLjob。2DAS归纳经典的least-attained-service（LAS）调度规则和Gittins策略为DLjob调度，并且同时考虑了空间和时间两个方面以及它们有无特点。在高级别，2DAS根据其获得的服务为每个job分配优先级。</h4><h4 id="获得的作业服务是根据它使用的GPU数量（WJ）和到目前为止运行的时间（tJ）计算的。前者在工作到来时就已知，而后者则不断增加。可以基于不同的先验知识来改变2DAS中的优先级功能。"><a href="#获得的作业服务是根据它使用的GPU数量（WJ）和到目前为止运行的时间（tJ）计算的。前者在工作到来时就已知，而后者则不断增加。可以基于不同的先验知识来改变2DAS中的优先级功能。" class="headerlink" title="获得的作业服务是根据它使用的GPU数量（WJ）和到目前为止运行的时间（tJ）计算的。前者在工作到来时就已知，而后者则不断增加。可以基于不同的先验知识来改变2DAS中的优先级功能。"></a>获得的作业服务是根据它使用的GPU数量（WJ）和到目前为止运行的时间（tJ）计算的。前者在工作到来时就已知，而后者则不断增加。可以基于不同的先验知识来改变2DAS中的优先级功能。</h4><h4 id="当没有提供作业持续时间信息时，优先级功能应用LAS算法，其中作业的优先级与其获得的服务相反。"><a href="#当没有提供作业持续时间信息时，优先级功能应用LAS算法，其中作业的优先级与其获得的服务相反。" class="headerlink" title="当没有提供作业持续时间信息时，优先级功能应用LAS算法，其中作业的优先级与其获得的服务相反。"></a>当没有提供作业持续时间信息时，优先级功能应用LAS算法，其中作业的优先级与其获得的服务相反。</h4><h4 id="如果集群运算符提供先前经验的工作持续时间分布，则作业的优先级等于其Gittins索引值。在基于Gittins指数的算法中，比率介于（1）作业在服务量Δ内完成的概率（即，在所有后续加上Δ开销时的奖励可能性）工作）和（2）工作J完成所需的预期服务。"><a href="#如果集群运算符提供先前经验的工作持续时间分布，则作业的优先级等于其Gittins索引值。在基于Gittins指数的算法中，比率介于（1）作业在服务量Δ内完成的概率（即，在所有后续加上Δ开销时的奖励可能性）工作）和（2）工作J完成所需的预期服务。" class="headerlink" title="如果集群运算符提供先前经验的工作持续时间分布，则作业的优先级等于其Gittins索引值。在基于Gittins指数的算法中，比率介于（1）作业在服务量Δ内完成的概率（即，在所有后续加上Δ开销时的奖励可能性）工作）和（2）工作J完成所需的预期服务。"></a>如果集群运算符提供先前经验的工作持续时间分布，则作业的优先级等于其Gittins索引值。在基于Gittins指数的算法中，比率介于（1）作业在服务量Δ内完成的概率（即，在所有后续加上Δ开销时的奖励可能性）工作）和（2）工作J完成所需的预期服务。</h4><h4 id="VLAS和Gittins指数都将工作获得的服务作为他们的投入。LAS更喜欢收到较少服务的工作。所有工作都以最高优先级开始，并且随着他们获得更多服务，他们的优先级会降低。Gittins指数的工作价值表示获得一定数量服务的工作在下一个服务数量范围内完成的可能性。较高的Gittins指数值意味着更高的优先级。"><a href="#VLAS和Gittins指数都将工作获得的服务作为他们的投入。LAS更喜欢收到较少服务的工作。所有工作都以最高优先级开始，并且随着他们获得更多服务，他们的优先级会降低。Gittins指数的工作价值表示获得一定数量服务的工作在下一个服务数量范围内完成的可能性。较高的Gittins指数值意味着更高的优先级。" class="headerlink" title="VLAS和Gittins指数都将工作获得的服务作为他们的投入。LAS更喜欢收到较少服务的工作。所有工作都以最高优先级开始，并且随着他们获得更多服务，他们的优先级会降低。Gittins指数的工作价值表示获得一定数量服务的工作在下一个服务数量范围内完成的可能性。较高的Gittins指数值意味着更高的优先级。"></a>VLAS和Gittins指数都将工作获得的服务作为他们的投入。LAS更喜欢收到较少服务的工作。所有工作都以最高优先级开始，并且随着他们获得更多服务，他们的优先级会降低。Gittins指数的工作价值表示获得一定数量服务的工作在下一个服务数量范围内完成的可能性。较高的Gittins指数值意味着更高的优先级。</h4><h3 id="优先级离散化"><a href="#优先级离散化" class="headerlink" title="优先级离散化"></a>优先级离散化</h3><h4 id="连续的优先级不适用于DLjob，会导致2DAS无效化并进行持续的抢占，这增加JCT。为解决这个问题，采用优先级离散框架，它基于Multi-Level-Feedback-Queue算法。"><a href="#连续的优先级不适用于DLjob，会导致2DAS无效化并进行持续的抢占，这增加JCT。为解决这个问题，采用优先级离散框架，它基于Multi-Level-Feedback-Queue算法。" class="headerlink" title="连续的优先级不适用于DLjob，会导致2DAS无效化并进行持续的抢占，这增加JCT。为解决这个问题，采用优先级离散框架，它基于Multi-Level Feedback Queue算法。"></a>连续的优先级不适用于DLjob，会导致2DAS无效化并进行持续的抢占，这增加JCT。为解决这个问题，采用优先级离散框架，它基于Multi-Level Feedback Queue算法。</h4><h4 id="四个事件的生命周期决定优先级："><a href="#四个事件的生命周期决定优先级：" class="headerlink" title="四个事件的生命周期决定优先级："></a>四个事件的生命周期决定优先级：</h4><h5 id="到达：如果有足够的资源，当新的job启动时进入优先级最高的队列。"><a href="#到达：如果有足够的资源，当新的job启动时进入优先级最高的队列。" class="headerlink" title="到达：如果有足够的资源，当新的job启动时进入优先级最高的队列。"></a>到达：如果有足够的资源，当新的job启动时进入优先级最高的队列。</h5><h5 id="当job使用GPU数量与运行事件的之积大于离散优先级阈值Q（i-1-时，则降级为Q-i-。"><a href="#当job使用GPU数量与运行事件的之积大于离散优先级阈值Q（i-1-时，则降级为Q-i-。" class="headerlink" title="当job使用GPU数量与运行事件的之积大于离散优先级阈值Q（i+1)时，则降级为Q(i)。"></a>当job使用GPU数量与运行事件的之积大于离散优先级阈值Q（i+1)时，则降级为Q(i)。</h5><h5 id="如果job被抢占事件太长，则重置工作的优先级。"><a href="#如果job被抢占事件太长，则重置工作的优先级。" class="headerlink" title="如果job被抢占事件太长，则重置工作的优先级。"></a>如果job被抢占事件太长，则重置工作的优先级。</h5><h5 id="job完成后，将其从当前队列中删除。"><a href="#job完成后，将其从当前队列中删除。" class="headerlink" title="job完成后，将其从当前队列中删除。"></a>job完成后，将其从当前队列中删除。</h5><h4 id="在总体结构中，使用GPU数目与已运行之积相差不大的job放置在同一个优先级下，优先级以队列的形式区分，即根据job使用的GPU数目与运行时间之积来定义job优先级，然后通过与阈值的比较，将不同的job放置在不同优先级的队列中，同意队列中的job具有相同的优先级。"><a href="#在总体结构中，使用GPU数目与已运行之积相差不大的job放置在同一个优先级下，优先级以队列的形式区分，即根据job使用的GPU数目与运行时间之积来定义job优先级，然后通过与阈值的比较，将不同的job放置在不同优先级的队列中，同意队列中的job具有相同的优先级。" class="headerlink" title="在总体结构中，使用GPU数目与已运行之积相差不大的job放置在同一个优先级下，优先级以队列的形式区分，即根据job使用的GPU数目与运行时间之积来定义job优先级，然后通过与阈值的比较，将不同的job放置在不同优先级的队列中，同意队列中的job具有相同的优先级。"></a>在总体结构中，使用GPU数目与已运行之积相差不大的job放置在同一个优先级下，优先级以队列的形式区分，即根据job使用的GPU数目与运行时间之积来定义job优先级，然后通过与阈值的比较，将不同的job放置在不同优先级的队列中，同意队列中的job具有相同的优先级。</h4><h4 id="当使用LAS时，同意队列中的job按其开始时间fifo顺序依次执行，而无需担心HOLblocking的风险。由于DDL作业的全有或全无特性，必须跳过没有足够GPU的高优先级作业以提高利用率-因此，在提交时间而不是开始时间的FIFO排序可能导致不必要的抢占。"><a href="#当使用LAS时，同意队列中的job按其开始时间fifo顺序依次执行，而无需担心HOLblocking的风险。由于DDL作业的全有或全无特性，必须跳过没有足够GPU的高优先级作业以提高利用率-因此，在提交时间而不是开始时间的FIFO排序可能导致不必要的抢占。" class="headerlink" title="当使用LAS时，同意队列中的job按其开始时间fifo顺序依次执行，而无需担心HOLblocking的风险。由于DDL作业的全有或全无特性，必须跳过没有足够GPU的高优先级作业以提高利用率;因此，在提交时间而不是开始时间的FIFO排序可能导致不必要的抢占。"></a>当使用LAS时，同意队列中的job按其开始时间fifo顺序依次执行，而无需担心HOLblocking的风险。由于DDL作业的全有或全无特性，必须跳过没有足够GPU的高优先级作业以提高利用率;因此，在提交时间而不是开始时间的FIFO排序可能导致不必要的抢占。</h4><h4 id="Gittins指数中的服务量Δ也是离散的。对于一个在Qi优先级队列的job，Δi等于Qi的上限Qhi。当一个作业消耗其所有服务量时，它将被删除到低优先级队列。对于Gittins索引，同一队列中的作业根据其Gittins索引值进行调度。在最后一个队列中，QK，ΔK设置为∞。在这种极端情况下，Gittins索引执行类似于LAS的操作，并且最后一个队列中的作业被安排在FIFO中。"><a href="#Gittins指数中的服务量Δ也是离散的。对于一个在Qi优先级队列的job，Δi等于Qi的上限Qhi。当一个作业消耗其所有服务量时，它将被删除到低优先级队列。对于Gittins索引，同一队列中的作业根据其Gittins索引值进行调度。在最后一个队列中，QK，ΔK设置为∞。在这种极端情况下，Gittins索引执行类似于LAS的操作，并且最后一个队列中的作业被安排在FIFO中。" class="headerlink" title="Gittins指数中的服务量Δ也是离散的。对于一个在Qi优先级队列的job，Δi等于Qi的上限Qhi。当一个作业消耗其所有服务量时，它将被删除到低优先级队列。对于Gittins索引，同一队列中的作业根据其Gittins索引值进行调度。在最后一个队列中，QK，ΔK设置为∞。在这种极端情况下，Gittins索引执行类似于LAS的操作，并且最后一个队列中的作业被安排在FIFO中。"></a>Gittins指数中的服务量Δ也是离散的。对于一个在Qi优先级队列的job，Δi等于Qi的上限Qhi。当一个作业消耗其所有服务量时，它将被删除到低优先级队列。对于Gittins索引，同一队列中的作业根据其Gittins索引值进行调度。在最后一个队列中，QK，ΔK设置为∞。在这种极端情况下，Gittins索引执行类似于LAS的操作，并且最后一个队列中的作业被安排在FIFO中。</h4><h3 id="决定离散优先级数量K和阈值"><a href="#决定离散优先级数量K和阈值" class="headerlink" title="决定离散优先级数量K和阈值"></a>决定离散优先级数量K和阈值</h3><h4 id="采用经典的foreground-background队列理论，可以很好解决heavy-tailed-distribution。一个阈值可以分出两个队列，作者通过重复实验证明，当K-2时的表现接近K为很大的值，同时还可以减少被抢占次数，并降低JCT。"><a href="#采用经典的foreground-background队列理论，可以很好解决heavy-tailed-distribution。一个阈值可以分出两个队列，作者通过重复实验证明，当K-2时的表现接近K为很大的值，同时还可以减少被抢占次数，并降低JCT。" class="headerlink" title="采用经典的foreground-background队列理论，可以很好解决heavy-tailed distribution。一个阈值可以分出两个队列，作者通过重复实验证明，当K=2时的表现接近K为很大的值，同时还可以减少被抢占次数，并降低JCT。"></a>采用经典的foreground-background队列理论，可以很好解决heavy-tailed distribution。一个阈值可以分出两个队列，作者通过重复实验证明，当K=2时的表现接近K为很大的值，同时还可以减少被抢占次数，并降低JCT。</h4><h3 id="避免饥饿"><a href="#避免饥饿" class="headerlink" title="避免饥饿"></a>避免饥饿</h3><h4 id="使用离散化的2DAS，如果连续的小型和短期job不断到来，一些job可能会挨饿。"><a href="#使用离散化的2DAS，如果连续的小型和短期job不断到来，一些job可能会挨饿。" class="headerlink" title="使用离散化的2DAS，如果连续的小型和短期job不断到来，一些job可能会挨饿。"></a>使用离散化的2DAS，如果连续的小型和短期job不断到来，一些job可能会挨饿。</h4><h4 id="为了避免饥饿，如果等待时间超过阈值STARVELIMIT，将job提升到最高优先级Q1："><a href="#为了避免饥饿，如果等待时间超过阈值STARVELIMIT，将job提升到最高优先级Q1：" class="headerlink" title="为了避免饥饿，如果等待时间超过阈值STARVELIMIT，将job提升到最高优先级Q1："></a>为了避免饥饿，如果等待时间超过阈值STARVELIMIT，将job提升到最高优先级Q1：</h4><h4 id="权衡：尽管上述提到的升迁可以减轻饥饿，太过频繁的升迁会取消离散化的好处。为了集群操作提供一个单独的开关（PROMOTEKNOB）以升迁job，如果等待时间太长（δ）大于job的执行时间和PROMOTEKNOB之积。"><a href="#权衡：尽管上述提到的升迁可以减轻饥饿，太过频繁的升迁会取消离散化的好处。为了集群操作提供一个单独的开关（PROMOTEKNOB）以升迁job，如果等待时间太长（δ）大于job的执行时间和PROMOTEKNOB之积。" class="headerlink" title="权衡：尽管上述提到的升迁可以减轻饥饿，太过频繁的升迁会取消离散化的好处。为了集群操作提供一个单独的开关（PROMOTEKNOB）以升迁job，如果等待时间太长（δ）大于job的执行时间和PROMOTEKNOB之积。"></a>权衡：尽管上述提到的升迁可以减轻饥饿，太过频繁的升迁会取消离散化的好处。为了集群操作提供一个单独的开关（PROMOTEKNOB）以升迁job，如果等待时间太长（δ）大于job的执行时间和PROMOTEKNOB之积。</h4><h4 id="通过设定不同的PROMOTEKNOB值可以起到不同的结果。"><a href="#通过设定不同的PROMOTEKNOB值可以起到不同的结果。" class="headerlink" title="通过设定不同的PROMOTEKNOB值可以起到不同的结果。"></a>通过设定不同的PROMOTEKNOB值可以起到不同的结果。</h4><h2 id="放置"><a href="#放置" class="headerlink" title="放置"></a>放置</h2><h3 id="如果集群中有足够的资源，Tiresias必须确定是否在尽可能少的PS中合并job的GPU或者分配它们。在实际上，即使集群中有足够的GPU资源，也可以将job置于WAITQUEUE中。根据这个观点，作者提出了一个ILP公式，以最优化地在集群中分配资源，从而最小化并平衡网络负载并不一定提高DL训练的性能。"><a href="#如果集群中有足够的资源，Tiresias必须确定是否在尽可能少的PS中合并job的GPU或者分配它们。在实际上，即使集群中有足够的GPU资源，也可以将job置于WAITQUEUE中。根据这个观点，作者提出了一个ILP公式，以最优化地在集群中分配资源，从而最小化并平衡网络负载并不一定提高DL训练的性能。" class="headerlink" title="如果集群中有足够的资源，Tiresias必须确定是否在尽可能少的PS中合并job的GPU或者分配它们。在实际上，即使集群中有足够的GPU资源，也可以将job置于WAITQUEUE中。根据这个观点，作者提出了一个ILP公式，以最优化地在集群中分配资源，从而最小化并平衡网络负载并不一定提高DL训练的性能。"></a>如果集群中有足够的资源，Tiresias必须确定是否在尽可能少的PS中合并job的GPU或者分配它们。在实际上，即使集群中有足够的GPU资源，也可以将job置于WAITQUEUE中。根据这个观点，作者提出了一个ILP公式，以最优化地在集群中分配资源，从而最小化并平衡网络负载并不一定提高DL训练的性能。</h3><h3 id="整合有多重要？"><a href="#整合有多重要？" class="headerlink" title="整合有多重要？"></a>整合有多重要？</h3><h4 id="基于ILP的公式不可行，作者发现模型结构的偏差可以很好的预测。训练模型的性能容易受到整合放置影响，这是因为模型整合中消息尺寸与模型的机构密切相关。因此，DDL中的消息大小分布取决于模型的张量大小分布。而张量大小通常分布不均匀，也就是存在巨大的张量，其中包括这些模型中的大部分参数。因此，聚合较大的张量会更严重地受到网络冲突的影响，而较小的张量的传输倾向于彼此更好的交错。基于此，作者设计了Tiresias-profiler，以找出每个模型的偏斜水平，然后由Tiresias放置算法使用。"><a href="#基于ILP的公式不可行，作者发现模型结构的偏差可以很好的预测。训练模型的性能容易受到整合放置影响，这是因为模型整合中消息尺寸与模型的机构密切相关。因此，DDL中的消息大小分布取决于模型的张量大小分布。而张量大小通常分布不均匀，也就是存在巨大的张量，其中包括这些模型中的大部分参数。因此，聚合较大的张量会更严重地受到网络冲突的影响，而较小的张量的传输倾向于彼此更好的交错。基于此，作者设计了Tiresias-profiler，以找出每个模型的偏斜水平，然后由Tiresias放置算法使用。" class="headerlink" title="基于ILP的公式不可行，作者发现模型结构的偏差可以很好的预测。训练模型的性能容易受到整合放置影响，这是因为模型整合中消息尺寸与模型的机构密切相关。因此，DDL中的消息大小分布取决于模型的张量大小分布。而张量大小通常分布不均匀，也就是存在巨大的张量，其中包括这些模型中的大部分参数。因此，聚合较大的张量会更严重地受到网络冲突的影响，而较小的张量的传输倾向于彼此更好的交错。基于此，作者设计了Tiresias profiler，以找出每个模型的偏斜水平，然后由Tiresias放置算法使用。"></a>基于ILP的公式不可行，作者发现模型结构的偏差可以很好的预测。训练模型的性能容易受到整合放置影响，这是因为模型整合中消息尺寸与模型的机构密切相关。因此，DDL中的消息大小分布取决于模型的张量大小分布。而张量大小通常分布不均匀，也就是存在巨大的张量，其中包括这些模型中的大部分参数。因此，聚合较大的张量会更严重地受到网络冲突的影响，而较小的张量的传输倾向于彼此更好的交错。基于此，作者设计了Tiresias profiler，以找出每个模型的偏斜水平，然后由Tiresias放置算法使用。</h4><h3 id="Profiler"><a href="#Profiler" class="headerlink" title="Profiler"></a>Profiler</h3><h4 id="对于给定的job，在不可知框架方式下，profiler识别PS上的大量的张量分布的偏度而不需要用户输入信息。偏度时DLjob张量大小分布和DL框架张量到参数服务器映射的函数。作者希望通过自动识别出偏度而不是依靠用户设计具有相同尺寸张量的DL模型或者对给定DL框架的张量分配算法作出假设。"><a href="#对于给定的job，在不可知框架方式下，profiler识别PS上的大量的张量分布的偏度而不需要用户输入信息。偏度时DLjob张量大小分布和DL框架张量到参数服务器映射的函数。作者希望通过自动识别出偏度而不是依靠用户设计具有相同尺寸张量的DL模型或者对给定DL框架的张量分配算法作出假设。" class="headerlink" title="对于给定的job，在不可知框架方式下，profiler识别PS上的大量的张量分布的偏度而不需要用户输入信息。偏度时DLjob张量大小分布和DL框架张量到参数服务器映射的函数。作者希望通过自动识别出偏度而不是依靠用户设计具有相同尺寸张量的DL模型或者对给定DL框架的张量分配算法作出假设。"></a>对于给定的job，在不可知框架方式下，profiler识别PS上的大量的张量分布的偏度而不需要用户输入信息。偏度时DLjob张量大小分布和DL框架张量到参数服务器映射的函数。作者希望通过自动识别出偏度而不是依靠用户设计具有相同尺寸张量的DL模型或者对给定DL框架的张量分配算法作出假设。</h4><h4 id="PS会定期向worker发送更新模型的一部分，因此可以通过观察ps与worker之间的网络童通信，以获得偏度。本文为RDMA网络构建了一个流量监控工具，它可以捕获有关RDMA通信的所有元数据。在Profiler运行期间，Tiresias挥动所有的相关信息以确定Job的Sj。因为从通信角度来看，每次迭代都是完全相同的，所以我们不必分析过多的迭代。这种可预测性还使我们能够识别作业的迭代边界，模型大小和偏斜特征。-Tiresias的放置算法使用此信息来确定作业的GPU分配是否应该合并。"><a href="#PS会定期向worker发送更新模型的一部分，因此可以通过观察ps与worker之间的网络童通信，以获得偏度。本文为RDMA网络构建了一个流量监控工具，它可以捕获有关RDMA通信的所有元数据。在Profiler运行期间，Tiresias挥动所有的相关信息以确定Job的Sj。因为从通信角度来看，每次迭代都是完全相同的，所以我们不必分析过多的迭代。这种可预测性还使我们能够识别作业的迭代边界，模型大小和偏斜特征。-Tiresias的放置算法使用此信息来确定作业的GPU分配是否应该合并。" class="headerlink" title="PS会定期向worker发送更新模型的一部分，因此可以通过观察ps与worker之间的网络童通信，以获得偏度。本文为RDMA网络构建了一个流量监控工具，它可以捕获有关RDMA通信的所有元数据。在Profiler运行期间，Tiresias挥动所有的相关信息以确定Job的Sj。因为从通信角度来看，每次迭代都是完全相同的，所以我们不必分析过多的迭代。这种可预测性还使我们能够识别作业的迭代边界，模型大小和偏斜特征。 Tiresias的放置算法使用此信息来确定作业的GPU分配是否应该合并。"></a>PS会定期向worker发送更新模型的一部分，因此可以通过观察ps与worker之间的网络童通信，以获得偏度。本文为RDMA网络构建了一个流量监控工具，它可以捕获有关RDMA通信的所有元数据。在Profiler运行期间，Tiresias挥动所有的相关信息以确定Job的Sj。因为从通信角度来看，每次迭代都是完全相同的，所以我们不必分析过多的迭代。这种可预测性还使我们能够识别作业的迭代边界，模型大小和偏斜特征。 Tiresias的放置算法使用此信息来确定作业的GPU分配是否应该合并。</h4><h3 id="放置算法"><a href="#放置算法" class="headerlink" title="放置算法"></a>放置算法</h3><h4 id="Tiresias的放置算法将SJ与阈值（PACKLIMIT）进行比较-如果SJ大于PACKLIMIT，Tiresias试图在尽可能少的机器上整合工作。如上所述，如果没有合并，具有较大偏斜的作业由于通信模式偏斜而表现较差。-对于其余部分，Tiresias在机器中分配GPU以减少碎片。-虽然简单，但这种算法在实践中非常有效（§5）。-它的性能甚至优于之前基于ILP的设计，因为ILP无法捕获不同模型上的合并的不同影响。"><a href="#Tiresias的放置算法将SJ与阈值（PACKLIMIT）进行比较-如果SJ大于PACKLIMIT，Tiresias试图在尽可能少的机器上整合工作。如上所述，如果没有合并，具有较大偏斜的作业由于通信模式偏斜而表现较差。-对于其余部分，Tiresias在机器中分配GPU以减少碎片。-虽然简单，但这种算法在实践中非常有效（§5）。-它的性能甚至优于之前基于ILP的设计，因为ILP无法捕获不同模型上的合并的不同影响。" class="headerlink" title="Tiresias的放置算法将SJ与阈值（PACKLIMIT）进行比较; 如果SJ大于PACKLIMIT，Tiresias试图在尽可能少的机器上整合工作。如上所述，如果没有合并，具有较大偏斜的作业由于通信模式偏斜而表现较差。 对于其余部分，Tiresias在机器中分配GPU以减少碎片。 虽然简单，但这种算法在实践中非常有效（§5）。 它的性能甚至优于之前基于ILP的设计，因为ILP无法捕获不同模型上的合并的不同影响。"></a>Tiresias的放置算法将SJ与阈值（PACKLIMIT）进行比较; 如果SJ大于PACKLIMIT，Tiresias试图在尽可能少的机器上整合工作。如上所述，如果没有合并，具有较大偏斜的作业由于通信模式偏斜而表现较差。 对于其余部分，Tiresias在机器中分配GPU以减少碎片。 虽然简单，但这种算法在实践中非常有效（§5）。 它的性能甚至优于之前基于ILP的设计，因为ILP无法捕获不同模型上的合并的不同影响。</h4><h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><h2 id="GPU即Worker"><a href="#GPU即Worker" class="headerlink" title="GPU即Worker"></a>GPU即Worker</h2><h2 id="中心master"><a href="#中心master" class="headerlink" title="中心master"></a>中心master</h2><h2 id="分布式RDMA检测"><a href="#分布式RDMA检测" class="headerlink" title="分布式RDMA检测"></a>分布式RDMA检测</h2><h1 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h1><h2 id="实验配置："><a href="#实验配置：" class="headerlink" title="实验配置："></a>实验配置：</h2><h3 id="60个GPU的集群，15个含有4个GPU的PowerNV-8335-GTB机器，每个机器有4个NVIDIA-Tesla-P100-GPU，显存为16GB，CPU为10核8线程，内存为256GB-DDR4，网络为100GB，分布式存储系统为GPFS，每个机器在GPFS的读写速度为1-2GB-s。"><a href="#60个GPU的集群，15个含有4个GPU的PowerNV-8335-GTB机器，每个机器有4个NVIDIA-Tesla-P100-GPU，显存为16GB，CPU为10核8线程，内存为256GB-DDR4，网络为100GB，分布式存储系统为GPFS，每个机器在GPFS的读写速度为1-2GB-s。" class="headerlink" title="60个GPU的集群，15个含有4个GPU的PowerNV 8335-GTB机器，每个机器有4个NVIDIA Tesla P100 GPU，显存为16GB，CPU为10核8线程，内存为256GB DDR4，网络为100GB，分布式存储系统为GPFS，每个机器在GPFS的读写速度为1.2GB/s。"></a>60个GPU的集群，15个含有4个GPU的PowerNV 8335-GTB机器，每个机器有4个NVIDIA Tesla P100 GPU，显存为16GB，CPU为10核8线程，内存为256GB DDR4，网络为100GB，分布式存储系统为GPFS，每个机器在GPFS的读写速度为1.2GB/s。</h3><h3 id="模拟器：作者开发了一个基于离散时间的模拟器以评价Tiresias在Microsoft数据上的表现。它可以模型Tiresias中的所有job事件，包括job到达、完成、降级、升级、抢占。他不能决定动态集群环境下job的训练事件，相反的它采用实际的job完成时间。"><a href="#模拟器：作者开发了一个基于离散时间的模拟器以评价Tiresias在Microsoft数据上的表现。它可以模型Tiresias中的所有job事件，包括job到达、完成、降级、升级、抢占。他不能决定动态集群环境下job的训练事件，相反的它采用实际的job完成时间。" class="headerlink" title="模拟器：作者开发了一个基于离散时间的模拟器以评价Tiresias在Microsoft数据上的表现。它可以模型Tiresias中的所有job事件，包括job到达、完成、降级、升级、抢占。他不能决定动态集群环境下job的训练事件，相反的它采用实际的job完成时间。"></a>模拟器：作者开发了一个基于离散时间的模拟器以评价Tiresias在Microsoft数据上的表现。它可以模型Tiresias中的所有job事件，包括job到达、完成、降级、升级、抢占。他不能决定动态集群环境下job的训练事件，相反的它采用实际的job完成时间。</h3><h3 id="workload-产生了480个DL-DDLjob根据微软的数据集。job的需求（GPU数目、训练时间）来自于真是的痕迹。job中一半为单GPU的DLjob，另一半为DDLjob（40个2-GPUjob、80个4-GPUjob、90个8-GPUjob、25个16-GPUjob、5个32-GPUjob）。DDKjob中的PS数目与GPU数目相同。每个job进行了一定数目的迭代运行。job训练时间从2分钟到2小时。job到达平均间隔事件为30s。在TensorFlow-1-3-1和RDMA网络上运行模型。"><a href="#workload-产生了480个DL-DDLjob根据微软的数据集。job的需求（GPU数目、训练时间）来自于真是的痕迹。job中一半为单GPU的DLjob，另一半为DDLjob（40个2-GPUjob、80个4-GPUjob、90个8-GPUjob、25个16-GPUjob、5个32-GPUjob）。DDKjob中的PS数目与GPU数目相同。每个job进行了一定数目的迭代运行。job训练时间从2分钟到2小时。job到达平均间隔事件为30s。在TensorFlow-1-3-1和RDMA网络上运行模型。" class="headerlink" title="workload 产生了480个DL/DDLjob根据微软的数据集。job的需求（GPU数目、训练时间）来自于真是的痕迹。job中一半为单GPU的DLjob，另一半为DDLjob（40个2-GPUjob、80个4-GPUjob、90个8-GPUjob、25个16-GPUjob、5个32-GPUjob）。DDKjob中的PS数目与GPU数目相同。每个job进行了一定数目的迭代运行。job训练时间从2分钟到2小时。job到达平均间隔事件为30s。在TensorFlow 1.3.1和RDMA网络上运行模型。"></a>workload 产生了480个DL/DDLjob根据微软的数据集。job的需求（GPU数目、训练时间）来自于真是的痕迹。job中一半为单GPU的DLjob，另一半为DDLjob（40个2-GPUjob、80个4-GPUjob、90个8-GPUjob、25个16-GPUjob、5个32-GPUjob）。DDKjob中的PS数目与GPU数目相同。每个job进行了一定数目的迭代运行。job训练时间从2分钟到2小时。job到达平均间隔事件为30s。在TensorFlow 1.3.1和RDMA网络上运行模型。</h3><h3 id="工作箱-根据job的空间（GPU数目）和时间（执行时间）分类。"><a href="#工作箱-根据job的空间（GPU数目）和时间（执行时间）分类。" class="headerlink" title="工作箱 根据job的空间（GPU数目）和时间（执行时间）分类。"></a>工作箱 根据job的空间（GPU数目）和时间（执行时间）分类。</h3><h4 id="原始数据："><a href="#原始数据：" class="headerlink" title="原始数据："></a>原始数据：</h4><h4 id="small-job：少于8GPU"><a href="#small-job：少于8GPU" class="headerlink" title="small job：少于8GPU"></a>small job：少于8GPU</h4><h4 id="short-job：少于4个小时"><a href="#short-job：少于4个小时" class="headerlink" title="short job：少于4个小时"></a>short job：少于4个小时</h4><h4 id="按比例缩小后："><a href="#按比例缩小后：" class="headerlink" title="按比例缩小后："></a>按比例缩小后：</h4><h4 id="small-job：少于4GPU"><a href="#small-job：少于4GPU" class="headerlink" title="small job：少于4GPU"></a>small job：少于4GPU</h4><h4 id="short-job：少于800s"><a href="#short-job：少于800s" class="headerlink" title="short job：少于800s"></a>short job：少于800s</h4><h3 id="基准线"><a href="#基准线" class="headerlink" title="基准线"></a>基准线</h3><h4 id="Apache-Yarn中的YARN-CS作为基准算法"><a href="#Apache-Yarn中的YARN-CS作为基准算法" class="headerlink" title="Apache Yarn中的YARN-CS作为基准算法"></a>Apache Yarn中的YARN-CS作为基准算法</h4><h3 id="测量"><a href="#测量" class="headerlink" title="测量"></a>测量</h3><h2 id="实验1：真实环境下的实验"><a href="#实验1：真实环境下的实验" class="headerlink" title="实验1：真实环境下的实验"></a>实验1：真实环境下的实验</h2><h2 id="实验2：模拟环境下的实验"><a href="#实验2：模拟环境下的实验" class="headerlink" title="实验2：模拟环境下的实验"></a>实验2：模拟环境下的实验</h2>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/10/文献调研方案/" rel="next" title="文献调研方案">
+                <i class="fa fa-chevron-left"></i> 文献调研方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+	  <div>
+	    <p id="div-border-left-red">
+	    <b>本文基于<a target="_blank" title="Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)" href="http://creativecommons.org/licenses/by-sa/4.0/"> 知识共享署名-相同方式共享 4.0 </a>国际许可协议发布</b><br>
+	    <span>
+	    <b>本文地址: </b><a href="/2019/04/23/Tiresias： A GPU Cluster Manager for Distributed Deep Learning/" title="Tiresias：A GPU Cluster Manager for Distributed Deep Learning">http://sunxinyue.top/2019/04/23/Tiresias： A GPU Cluster Manager for Distributed Deep Learning/</a><br><b>转载请注明出处, 谢谢！</b>
+	    </span>
+	    </p>
+		</div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!--MOB SHARE BEGIN-->
+<div class="-hoofoo-share-title">分享到: </div>
+<div class="-hoofoo-share-buttons">
+    <div class="-mob-share-weibo -hoofoo-share-weibo -hoofoo-share-ui-button"><i class="fa fa-weibo" aria-hidden="true"></i></div>
+    <div class="-mob-share-weixin -hoofoo-share-weixin -hoofoo-share-ui-button"><i class="fa fa-weixin" aria-hidden="true"></i></div>
+    <div class="-mob-share-qq -hoofoo-share-qq -hoofoo-share-ui-button"><i class="fa fa-qq" aria-hidden="true"></i></div>
+    <div class="-mob-share-twitter -hoofoo-share-twitter -hoofoo-share-ui-button"><i class="fa fa-twitter" aria-hidden="true"></i></div>
+    <div class="-hoofoo-share-more -hoofoo-share-ui-button -mob-share-open"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></div>
+</div>
+<div class="-mob-share-ui" style="display: none">
+    <ul class="-mob-share-list">
+        <li class="-mob-share-weibo"><p>新浪微博</p></li>
+        <li class="-mob-share-weixin"><p>微信</p></li>
+        <li class="-mob-share-qzone"><p>QQ空间</p></li>
+        <li class="-mob-share-qq"><p>QQ好友</p></li>
+        <li class="-mob-share-tencentweibo"><p>腾讯微博</p></li>
+        <li class="-mob-share-renren"><p>人人网</p></li>
+        <li class="-mob-share-kaixin"><p>开心网</p></li>
+        <li class="-mob-share-douban"><p>豆瓣</p></li>
+        <li class="-mob-share-youdao"><p>有道云笔记</p></li>
+        <li class="-mob-share-mingdao"><p>明道</p></li>
+        <li class="-mob-share-pengyou"><p>朋友网</p></li>
+        <li class="-mob-share-facebook"><p>Facebook</p></li>
+        <li class="-mob-share-twitter"><p>Twitter</p></li>
+        <li class="-mob-share-pocket"><p>Pocket</p></li>
+        <li class="-mob-share-google"><p>Google+</p></li>
+        <li class="-mob-share-tumblr"><p>Tumblr</p></li>
+        <li class="-mob-share-instapaper"><p>Instapaper</p></li>
+        <li class="-mob-share-linkedin"><p>Linkedin</p></li>
+    </ul>
+    <div class="-mob-share-close">取消</div>
+</div>
+<div class="-mob-share-ui-bg"></div>
+<script id="-mob-share" src="http://f1.webshare.mob.com/code/mob-share.js?appkey=2aca2d8a88748"></script>
+<!--MOB SHARE END-->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/background.jpg" alt="xinyueSun">
+            
+              <p class="site-author-name" itemprop="name">xinyueSun</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <div id="days"></div>
+    <script>
+    function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("01/10/2017 12:34:56");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=setzero(Math.floor(e_hrsold));
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+        seconds=setzero(Math.floor((e_minsold-minsold)*60));
+        document.getElementById('days').innerHTML="已运行"+daysold+"天"+hrsold+"小时"+minsold+"分"+seconds+"秒";
+    }
+function setzero(i){
+    if (i<10)
+    {i="0" + i};
+    return i;
+}
+show_date_time();
+</script>
+
+
+<div id="music163player">
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="110" src="//music.163.com/outchain/player?type=0&id=2632109752&auto=1&height=90">
+</iframe>
+</div>
+
+
+
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#摘要"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#提出了专门解决分布式DL-training-job的GPU集群管理器Tiresias，它通过有效调度和放置DL-job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法："><span class="nav-number">1.1.</span> <span class="nav-text">提出了专门解决分布式DL training job的GPU集群管理器Tiresias，它通过有效调度和放置DL job实现减少工作完成时间（JCT）的目标。Tiresias主要包括两种调度算法和一种放置算法：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-调度算法1：-Discretized-Two-Dimensional-Gittins-index–依赖部分jop信息"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 调度算法1： Discretized Two-Dimensional Gittins index–依赖部分jop信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-调度算法2：-Discretized-Two-Dimensional-LAS–不需要任何信息"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. 调度算法2： Discretized Two-Dimensional LAS–不需要任何信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#调度算法的目标是降低平均JCT。"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">调度算法的目标是降低平均JCT。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-放置算法：-提出整合放置约束何时被重新定义-？？"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. 放置算法： 提出整合放置约束何时被重新定义  ？？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">2.</span> <span class="nav-text">引言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#job调度和GPU放置工作目标是降低集群的平均JCT和最大化资源GPU利用率。"><span class="nav-number">2.1.</span> <span class="nav-text">job调度和GPU放置工作目标是降低集群的平均JCT和最大化资源GPU利用率。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主要存在两个挑战："><span class="nav-number">2.2.</span> <span class="nav-text">主要存在两个挑战：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-在不知道训练任务执行时间的情况下，调度工作效果差。以前的工作主要是假设任务执行时间是已知的，但是在真实环境下并不适用。"><span class="nav-number">2.2.1.</span> <span class="nav-text">1. 在不知道训练任务执行时间的情况下，调度工作效果差。以前的工作主要是假设任务执行时间是已知的，但是在真实环境下并不适用。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-在放置过程中过度的整合。以前的工作认为网络性能是系统的瓶颈，本文发现这可能只是一部分。"><span class="nav-number">2.2.2.</span> <span class="nav-text">2. 在放置过程中过度的整合。以前的工作认为网络性能是系统的瓶颈，本文发现这可能只是一部分。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为了解决这两个挑战，提出了Tiresias："><span class="nav-number">2.3.</span> <span class="nav-text">为了解决这两个挑战，提出了Tiresias：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ideal-1-提出了一个新的调度框架2DAS-它可以在Job工作时间未知的前提下最小化JCT。主要包括2个调度算法：Discretized-2D-LAS-和-Discretized-2D-Gittin-index"><span class="nav-number">2.3.1.</span> <span class="nav-text">ideal 1. 提出了一个新的调度框架2DAS, 它可以在Job工作时间未知的前提下最小化JCT。主要包括2个调度算法：Discretized 2D-LAS 和 Discretized 2D-Gittin index.</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Discretized-2D-LAS-应用于信息未知场景。LAS-Least-Attained-Service"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">Discretized 2D-LAS:应用于信息未知场景。LAS(Least-Attained Service)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Discretized-2D-Gittin-当JCT分布是已知时，Gittin-index是单服务器场景最小化平均JCT最好的方法“On-the-gittins-index-in-the-m-g-1-queue”-Multi-armed-bandit-allocation-indices"><span class="nav-number">2.3.1.2.</span> <span class="nav-text">Discretized 2D-Gittin:当JCT分布是已知时，Gittin index是单服务器场景最小化平均JCT最好的方法“On the gittins index in the m/g/1 queue”/Multi-armed bandit allocation indices</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#两者都为每个Job分配了优先级，前者采用Gittins-index-后者采用Job已经接收到的服务分配优先级。并按照优先级的顺序安排JOB。"><span class="nav-number">2.3.1.3.</span> <span class="nav-text">两者都为每个Job分配了优先级，前者采用Gittins index,后者采用Job已经接收到的服务分配优先级。并按照优先级的顺序安排JOB。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在分配优先级时，需要同时考虑空间维度（GPU数目）和时间维度（多长时间）。此外，还需考虑随着job接收到新的服务，job的优先级处于不断改变的状态，这会使得job不断地抢占。为了避免这个问题，为上述算法设定了优先级离散化–实现Job的优先级再固定时间间隔后才能发生变化。"><span class="nav-number">2.3.1.4.</span> <span class="nav-text">在分配优先级时，需要同时考虑空间维度（GPU数目）和时间维度（多长时间）。此外，还需考虑随着job接收到新的服务，job的优先级处于不断改变的状态，这会使得job不断地抢占。为了避免这个问题，为上述算法设定了优先级离散化–实现Job的优先级再固定时间间隔后才能发生变化。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用：当没有先验知识时，将应用Discretized-2D-LAS，否则用Discretized-2D-Gittins-index。"><span class="nav-number">2.4.</span> <span class="nav-text">应用：当没有先验知识时，将应用Discretized 2D-LAS，否则用Discretized 2D-Gittins index。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ideal2：通过模型结构化去释放放置约束"><span class="nav-number">2.4.1.</span> <span class="nav-text">ideal2：通过模型结构化去释放放置约束</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#某些类型的DLmodel对是否整合敏感，这是因为模型中tensor大小分布偏差所导致的。基于此，将job分成对合并敏感job（高度偏差）和其他job。"><span class="nav-number">2.4.1.1.</span> <span class="nav-text">某些类型的DLmodel对是否整合敏感，这是因为模型中tensor大小分布偏差所导致的。基于此，将job分成对合并敏感job（高度偏差）和其他job。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tiresias实现了一个RDMA网络分析库，它可以通过网络等级的活动决定DDLjob的model结构。"><span class="nav-number">2.4.1.2.</span> <span class="nav-text">Tiresias实现了一个RDMA网络分析库，它可以通过网络等级的活动决定DDLjob的model结构。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在Microsoft数据集，真实集群下实现了Tiresias。"><span class="nav-number">2.5.</span> <span class="nav-text">在Microsoft数据集，真实集群下实现了Tiresias。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总贡献：1-提出了在未知信息下的资源调度。2-将二维扩展（空间和时间）和优先级离散应用于job调度。3-在存在先验知识的情况下，也可以利用先验知识完成调度。4-利用可观察的模型标准来确定合适降低Worker的约束。5-易于布置。"><span class="nav-number">2.6.</span> <span class="nav-text">总贡献：1.提出了在未知信息下的资源调度。2. 将二维扩展（空间和时间）和优先级离散应用于job调度。3.在存在先验知识的情况下，也可以利用先验知识完成调度。4. 利用可观察的模型标准来确定合适降低Worker的约束。5. 易于布置。</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#背景与动机"><span class="nav-number">3.</span> <span class="nav-text">背景与动机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式深度学习"><span class="nav-number">3.1.</span> <span class="nav-text">分布式深度学习</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要是针对其中的数据并行问题：worker（一个GPU）处理本地DL模型副本。"><span class="nav-number">3.1.1.</span> <span class="nav-text">主要是针对其中的数据并行问题：worker（一个GPU）处理本地DL模型副本。</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#所有jobs在同步模型下的收敛速度高于异步模型，因此worker处理job时，将数据集分成等大小。"><span class="nav-number">3.1.1.1.</span> <span class="nav-text">所有jobs在同步模型下的收敛速度高于异步模型，因此worker处理job时，将数据集分成等大小。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#周期性迭代机制："><span class="nav-number">3.1.2.</span> <span class="nav-text">周期性迭代机制：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#深度学习任务是通过迭代工作的。worker节点首先通过forward-backward计算数据集中的一个块，然后worker节点合计本地结果更新每一个DL模型–model-aggregation。"><span class="nav-number">3.1.2.1.</span> <span class="nav-text">深度学习任务是通过迭代工作的。worker节点首先通过forward-backward计算数据集中的一个块，然后worker节点合计本地结果更新每一个DL模型–model aggregation。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在迭代过程中计算负载和通信量完全相同，因此DDLjob的迭代时间可被预测。"><span class="nav-number">3.1.2.2.</span> <span class="nav-text">在迭代过程中计算负载和通信量完全相同，因此DDLjob的迭代时间可被预测。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参数服务器（PS）架构："><span class="nav-number">3.1.3.</span> <span class="nav-text">参数服务器（PS）架构：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#参数服务器架构是进行model-aggregation最流行的方法。"><span class="nav-number">3.1.3.1.</span> <span class="nav-text">参数服务器架构是进行model aggregation最流行的方法。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PS托管DL模型的主副本，它使用所有的worker的本地结果去更新模型。在每次迭代开始前，worker从PS上取回更新后的模型。对于单个DDLjob可以存在多个PS。"><span class="nav-number">3.1.3.2.</span> <span class="nav-text">PS托管DL模型的主副本，它使用所有的worker的本地结果去更新模型。在每次迭代开始前，worker从PS上取回更新后的模型。对于单个DDLjob可以存在多个PS。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反复实验过程："><span class="nav-number">3.1.4.</span> <span class="nav-text">反复实验过程：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#训练一个DL模型是一个反复实验的过程。DL模型暴露出许多表达模型高级属性的超参数。为了得到更高质量的模型，需要在一个巨大的搜索空间中找到更好的超参数组合–hyperparameter-tuning。AutoML常被用于调参数，但在实际中，很多模型都不能很好的收敛，它们需要被删除。"><span class="nav-number">3.1.4.1.</span> <span class="nav-text">训练一个DL模型是一个反复实验的过程。DL模型暴露出许多表达模型高级属性的超参数。为了得到更高质量的模型，需要在一个巨大的搜索空间中找到更好的超参数组合–hyperparameter tuning。AutoML常被用于调参数，但在实际中，很多模型都不能很好的收敛，它们需要被删除。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#挑战："><span class="nav-number">3.2.</span> <span class="nav-text">挑战：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#未知的job执行时间："><span class="nav-number">3.2.1.</span> <span class="nav-text">未知的job执行时间：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#现有的预测job执行时间的方法都是基于两个条件：-1-光滑的loss曲线；（2）实现-完成训练目标。但是，实际上许多模型并不满足上述两个条件。换句话说，训练模型不一定都会收敛，所以一般都会设定一个最大epoch数目。因此，一个实际的资源管理器应该不依赖准确-loss曲线去预测job执行时间。"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">现有的预测job执行时间的方法都是基于两个条件：(1)光滑的loss曲线；（2）实现/完成训练目标。但是，实际上许多模型并不满足上述两个条件。换句话说，训练模型不一定都会收敛，所以一般都会设定一个最大epoch数目。因此，一个实际的资源管理器应该不依赖准确/loss曲线去预测job执行时间。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#过度的Job整合"><span class="nav-number">3.2.2.</span> <span class="nav-text">过度的Job整合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在model-aggregation期间尝试最小化网络通信是分布式训练中常见优化，因为网络可能是性能瓶颈并浪费GPU周期。现有的方法盲目的遵循合并约束，将job的所有部分分配给相同或更小数量的服务器。然而DDLjob会在无法合并时等待，即使集群中有足够的资源，这导致排队延迟和资源利用率低下。"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">在model aggregation期间尝试最小化网络通信是分布式训练中常见优化，因为网络可能是性能瓶颈并浪费GPU周期。现有的方法盲目的遵循合并约束，将job的所有部分分配给相同或更小数量的服务器。然而DDLjob会在无法合并时等待，即使集群中有足够的资源，这导致排队延迟和资源利用率低下。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抢占时间开销"><span class="nav-number">3.2.3.</span> <span class="nav-text">抢占时间开销</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#由于大量的时间开销，现有的集群不会抢占任务。本文提出的Tiresias会抢占，因此必须考虑抢占开销。"><span class="nav-number">3.2.3.1.</span> <span class="nav-text">由于大量的时间开销，现有的集群不会抢占任务。本文提出的Tiresias会抢占，因此必须考虑抢占开销。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#潜在收益–通过减轻两种虚构的观点"><span class="nav-number">3.3.</span> <span class="nav-text">潜在收益–通过减轻两种虚构的观点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#虚构观点1：离开了精准的job执行时间，job不能被很好的调度。"><span class="nav-number">3.3.1.</span> <span class="nav-text">虚构观点1：离开了精准的job执行时间，job不能被很好的调度。</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DDLjob执行时间不可预测，但是根据历史log中的信息，可以学习它的分布。根据分布信息，Gittins-index-策略可以降低平均JCT。如果不知道分布，LAS算法仍旧可以根据其获得的服务有效地安排工作。"><span class="nav-number">3.3.1.1.</span> <span class="nav-text">DDLjob执行时间不可预测，但是根据历史log中的信息，可以学习它的分布。根据分布信息，Gittins index 策略可以降低平均JCT。如果不知道分布，LAS算法仍旧可以根据其获得的服务有效地安排工作。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚构观点2：DDLjob应该总是被整合："><span class="nav-number">3.3.2.</span> <span class="nav-text">虚构观点2：DDLjob应该总是被整合：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#虽然整合job的位置可以最小化通信时间，但存在部分DDLjob对放置不敏感，这是因为模型结构。"><span class="nav-number">3.3.2.1.</span> <span class="nav-text">虽然整合job的位置可以最小化通信时间，但存在部分DDLjob对放置不敏感，这是因为模型结构。</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tiresias-设计：调度、放置管理器以及job特性分析器"><span class="nav-number">4.</span> <span class="nav-text">Tiresias 设计：调度、放置管理器以及job特性分析器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#整体框架：主要的工作负载是DL训练，他同时完成两件事：1-分配GPU给每个独立的Job。2-随时间变化调度多个job。因此它有两个目标：1-以用户为中心。2-以运营商为中心。"><span class="nav-number">4.1.</span> <span class="nav-text">整体框架：主要的工作负载是DL训练，他同时完成两件事：1.分配GPU给每个独立的Job。2.随时间变化调度多个job。因此它有两个目标：1.以用户为中心。2.以运营商为中心。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现目标：1-最小化平均JCT。2-高的GPU利用率。3-平衡用户和运营商的目标。"><span class="nav-number">4.1.1.</span> <span class="nav-text">实现目标：1.最小化平均JCT。2.高的GPU利用率。3.平衡用户和运营商的目标。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#限制与假设条件"><span class="nav-number">4.1.2.</span> <span class="nav-text">限制与假设条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在线工作到达：用户在线提交Job，Job的资源需求（PS和worker的数目）是被给出的，但在其到达之前是未知的。模型和数据划分是有DL框架和用户决定，Tiresias只负责资源分配与调度。"><span class="nav-number">4.1.2.1.</span> <span class="nav-text">在线工作到达：用户在线提交Job，Job的资源需求（PS和worker的数目）是被给出的，但在其到达之前是未知的。模型和数据划分是有DL框架和用户决定，Tiresias只负责资源分配与调度。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#未知的工作执行时间：由于实际上非光滑的曲线和非确定的终止时间，无法预测DLjob的执行时间。但是某些时候可以通过历史log获得job的执行时间分布。"><span class="nav-number">4.1.2.2.</span> <span class="nav-text">未知的工作执行时间：由于实际上非光滑的曲线和非确定的终止时间，无法预测DLjob的执行时间。但是某些时候可以通过历史log获得job的执行时间分布。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#位置的特定于job的特征：用户不知道也无法控制基础DL框架将张量分配给PS和相应的偏斜程度。"><span class="nav-number">4.1.2.3.</span> <span class="nav-text">位置的特定于job的特征：用户不知道也无法控制基础DL框架将张量分配给PS和相应的偏斜程度。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全有或者全无的资源分配：不想传统的大数据job可以随时调度任务，DL训练job要求所有的PS和worker同时处于活动状态，必须同时分配所有需求的资源。"><span class="nav-number">4.1.2.4.</span> <span class="nav-text">全有或者全无的资源分配：不想传统的大数据job可以随时调度任务，DL训练job要求所有的PS和worker同时处于活动状态，必须同时分配所有需求的资源。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Job生命周期"><span class="nav-number">4.1.3.</span> <span class="nav-text">Job生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Tiresias被设计成为一个在特定的DL框架下，具有可以完成上述目标而不需要知道job的资源需求、执行时间、内在特点的能力。"><span class="nav-number">4.1.3.1.</span> <span class="nav-text">Tiresias被设计成为一个在特定的DL框架下，具有可以完成上述目标而不需要知道job的资源需求、执行时间、内在特点的能力。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行过程：1-用户提交job，此时job的GPU请求已知，并将它放置到等待队列（WAITQUEUE）中。2-Scheduler定期从WAITQUEUE调度job从集群中抢占正在运行的job（基于job到达、job完成、资源可用性变化等事件），并将被抢占job加入WAITQUEUE。3-当第一次启动job或者恢复之前被抢占的job时，Scheduler以来Placement模块去分配GPU。4-如果job是第一次启动，Placement模块首先分析它–Profiler识别job内在特征，例如张量分布的偏斜–以决定是否合并job。"><span class="nav-number">4.1.3.2.</span> <span class="nav-text">执行过程：1.用户提交job，此时job的GPU请求已知，并将它放置到等待队列（WAITQUEUE）中。2. Scheduler定期从WAITQUEUE调度job从集群中抢占正在运行的job（基于job到达、job完成、资源可用性变化等事件），并将被抢占job加入WAITQUEUE。3.当第一次启动job或者恢复之前被抢占的job时，Scheduler以来Placement模块去分配GPU。4.如果job是第一次启动，Placement模块首先分析它–Profiler识别job内在特征，例如张量分布的偏斜–以决定是否合并job。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调度"><span class="nav-number">4.2.</span> <span class="nav-text">调度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本文调度算法的核心目标：1-最小化平均JCT。2-增加集群的利用率。同时3-避免饥饿（无法为job提供足够的GPU资源）"><span class="nav-number">4.2.1.</span> <span class="nav-text">本文调度算法的核心目标：1.最小化平均JCT。2.增加集群的利用率。同时3.避免饥饿（无法为job提供足够的GPU资源）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抢占式调度算法需要满足的目标：1-执行抢占期间，必须避免head-of-line-blocking-HOL-即避免被较大-较长的job线路阻塞了较小-较短的job。"><span class="nav-number">4.2.2.</span> <span class="nav-text">抢占式调度算法需要满足的目标：1.执行抢占期间，必须避免head of line blocking(HOL),即避免被较大/较长的job线路阻塞了较小/较短的job。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抢占式调度算法主要包括Time-share、SJF、SKTF等类型。例如，被用于DL训练job的Gandiva算法是基于Time-sharing的。基于time-sharing的算法一般被用于公平分享，而不是最小化JCT。由于DL训练时间不确定，SJF-SRTF已不适用。同时，基于大小的启发式算法（job需要多少GPU）也忽略了job执行时间。"><span class="nav-number">4.2.3.</span> <span class="nav-text">抢占式调度算法主要包括Time-share、SJF、SKTF等类型。例如，被用于DL训练job的Gandiva算法是基于Time-sharing的。基于time-sharing的算法一般被用于公平分享，而不是最小化JCT。由于DL训练时间不确定，SJF/SRTF已不适用。同时，基于大小的启发式算法（job需要多少GPU）也忽略了job执行时间。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么二维调度？"><span class="nav-number">4.2.4.</span> <span class="nav-text">为什么二维调度？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在有限的GPU集群上调度DDLjob时，仅考虑空间或时间一个方面是不够的。为证明这个观点，本文在Microsoft数据集上进行了三个算法的实验：1-SF；2-SRTF。3-SRSF。前两者为单维度，最后一个为二维度（剩余服务是job剩余时间和GPU数量的乘积）。"><span class="nav-number">4.2.4.1.</span> <span class="nav-text">在有限的GPU集群上调度DDLjob时，仅考虑空间或时间一个方面是不够的。为证明这个观点，本文在Microsoft数据集上进行了三个算法的实验：1.SF；2.SRTF。3.SRSF。前两者为单维度，最后一个为二维度（剩余服务是job剩余时间和GPU数量的乘积）。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于Scheduler的二维到达服务（2DAS）"><span class="nav-number">4.2.5.</span> <span class="nav-text">基于Scheduler的二维到达服务（2DAS）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2DAS解决了上述问题，它在考虑用于整合的GPU需求的同时，不需要依赖精确的job执行时间来调度DLjob。2DAS归纳经典的least-attained-service（LAS）调度规则和Gittins策略为DLjob调度，并且同时考虑了空间和时间两个方面以及它们有无特点。在高级别，2DAS根据其获得的服务为每个job分配优先级。"><span class="nav-number">4.2.5.1.</span> <span class="nav-text">2DAS解决了上述问题，它在考虑用于整合的GPU需求的同时，不需要依赖精确的job执行时间来调度DLjob。2DAS归纳经典的least-attained-service（LAS）调度规则和Gittins策略为DLjob调度，并且同时考虑了空间和时间两个方面以及它们有无特点。在高级别，2DAS根据其获得的服务为每个job分配优先级。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获得的作业服务是根据它使用的GPU数量（WJ）和到目前为止运行的时间（tJ）计算的。前者在工作到来时就已知，而后者则不断增加。可以基于不同的先验知识来改变2DAS中的优先级功能。"><span class="nav-number">4.2.5.2.</span> <span class="nav-text">获得的作业服务是根据它使用的GPU数量（WJ）和到目前为止运行的时间（tJ）计算的。前者在工作到来时就已知，而后者则不断增加。可以基于不同的先验知识来改变2DAS中的优先级功能。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#当没有提供作业持续时间信息时，优先级功能应用LAS算法，其中作业的优先级与其获得的服务相反。"><span class="nav-number">4.2.5.3.</span> <span class="nav-text">当没有提供作业持续时间信息时，优先级功能应用LAS算法，其中作业的优先级与其获得的服务相反。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果集群运算符提供先前经验的工作持续时间分布，则作业的优先级等于其Gittins索引值。在基于Gittins指数的算法中，比率介于（1）作业在服务量Δ内完成的概率（即，在所有后续加上Δ开销时的奖励可能性）工作）和（2）工作J完成所需的预期服务。"><span class="nav-number">4.2.5.4.</span> <span class="nav-text">如果集群运算符提供先前经验的工作持续时间分布，则作业的优先级等于其Gittins索引值。在基于Gittins指数的算法中，比率介于（1）作业在服务量Δ内完成的概率（即，在所有后续加上Δ开销时的奖励可能性）工作）和（2）工作J完成所需的预期服务。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VLAS和Gittins指数都将工作获得的服务作为他们的投入。LAS更喜欢收到较少服务的工作。所有工作都以最高优先级开始，并且随着他们获得更多服务，他们的优先级会降低。Gittins指数的工作价值表示获得一定数量服务的工作在下一个服务数量范围内完成的可能性。较高的Gittins指数值意味着更高的优先级。"><span class="nav-number">4.2.5.5.</span> <span class="nav-text">VLAS和Gittins指数都将工作获得的服务作为他们的投入。LAS更喜欢收到较少服务的工作。所有工作都以最高优先级开始，并且随着他们获得更多服务，他们的优先级会降低。Gittins指数的工作价值表示获得一定数量服务的工作在下一个服务数量范围内完成的可能性。较高的Gittins指数值意味着更高的优先级。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优先级离散化"><span class="nav-number">4.2.6.</span> <span class="nav-text">优先级离散化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#连续的优先级不适用于DLjob，会导致2DAS无效化并进行持续的抢占，这增加JCT。为解决这个问题，采用优先级离散框架，它基于Multi-Level-Feedback-Queue算法。"><span class="nav-number">4.2.6.1.</span> <span class="nav-text">连续的优先级不适用于DLjob，会导致2DAS无效化并进行持续的抢占，这增加JCT。为解决这个问题，采用优先级离散框架，它基于Multi-Level Feedback Queue算法。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四个事件的生命周期决定优先级："><span class="nav-number">4.2.6.2.</span> <span class="nav-text">四个事件的生命周期决定优先级：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#到达：如果有足够的资源，当新的job启动时进入优先级最高的队列。"><span class="nav-number">4.2.6.2.1.</span> <span class="nav-text">到达：如果有足够的资源，当新的job启动时进入优先级最高的队列。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#当job使用GPU数量与运行事件的之积大于离散优先级阈值Q（i-1-时，则降级为Q-i-。"><span class="nav-number">4.2.6.2.2.</span> <span class="nav-text">当job使用GPU数量与运行事件的之积大于离散优先级阈值Q（i+1)时，则降级为Q(i)。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如果job被抢占事件太长，则重置工作的优先级。"><span class="nav-number">4.2.6.2.3.</span> <span class="nav-text">如果job被抢占事件太长，则重置工作的优先级。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#job完成后，将其从当前队列中删除。"><span class="nav-number">4.2.6.2.4.</span> <span class="nav-text">job完成后，将其从当前队列中删除。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在总体结构中，使用GPU数目与已运行之积相差不大的job放置在同一个优先级下，优先级以队列的形式区分，即根据job使用的GPU数目与运行时间之积来定义job优先级，然后通过与阈值的比较，将不同的job放置在不同优先级的队列中，同意队列中的job具有相同的优先级。"><span class="nav-number">4.2.6.3.</span> <span class="nav-text">在总体结构中，使用GPU数目与已运行之积相差不大的job放置在同一个优先级下，优先级以队列的形式区分，即根据job使用的GPU数目与运行时间之积来定义job优先级，然后通过与阈值的比较，将不同的job放置在不同优先级的队列中，同意队列中的job具有相同的优先级。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#当使用LAS时，同意队列中的job按其开始时间fifo顺序依次执行，而无需担心HOLblocking的风险。由于DDL作业的全有或全无特性，必须跳过没有足够GPU的高优先级作业以提高利用率-因此，在提交时间而不是开始时间的FIFO排序可能导致不必要的抢占。"><span class="nav-number">4.2.6.4.</span> <span class="nav-text">当使用LAS时，同意队列中的job按其开始时间fifo顺序依次执行，而无需担心HOLblocking的风险。由于DDL作业的全有或全无特性，必须跳过没有足够GPU的高优先级作业以提高利用率;因此，在提交时间而不是开始时间的FIFO排序可能导致不必要的抢占。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gittins指数中的服务量Δ也是离散的。对于一个在Qi优先级队列的job，Δi等于Qi的上限Qhi。当一个作业消耗其所有服务量时，它将被删除到低优先级队列。对于Gittins索引，同一队列中的作业根据其Gittins索引值进行调度。在最后一个队列中，QK，ΔK设置为∞。在这种极端情况下，Gittins索引执行类似于LAS的操作，并且最后一个队列中的作业被安排在FIFO中。"><span class="nav-number">4.2.6.5.</span> <span class="nav-text">Gittins指数中的服务量Δ也是离散的。对于一个在Qi优先级队列的job，Δi等于Qi的上限Qhi。当一个作业消耗其所有服务量时，它将被删除到低优先级队列。对于Gittins索引，同一队列中的作业根据其Gittins索引值进行调度。在最后一个队列中，QK，ΔK设置为∞。在这种极端情况下，Gittins索引执行类似于LAS的操作，并且最后一个队列中的作业被安排在FIFO中。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#决定离散优先级数量K和阈值"><span class="nav-number">4.2.7.</span> <span class="nav-text">决定离散优先级数量K和阈值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#采用经典的foreground-background队列理论，可以很好解决heavy-tailed-distribution。一个阈值可以分出两个队列，作者通过重复实验证明，当K-2时的表现接近K为很大的值，同时还可以减少被抢占次数，并降低JCT。"><span class="nav-number">4.2.7.1.</span> <span class="nav-text">采用经典的foreground-background队列理论，可以很好解决heavy-tailed distribution。一个阈值可以分出两个队列，作者通过重复实验证明，当K=2时的表现接近K为很大的值，同时还可以减少被抢占次数，并降低JCT。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避免饥饿"><span class="nav-number">4.2.8.</span> <span class="nav-text">避免饥饿</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用离散化的2DAS，如果连续的小型和短期job不断到来，一些job可能会挨饿。"><span class="nav-number">4.2.8.1.</span> <span class="nav-text">使用离散化的2DAS，如果连续的小型和短期job不断到来，一些job可能会挨饿。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为了避免饥饿，如果等待时间超过阈值STARVELIMIT，将job提升到最高优先级Q1："><span class="nav-number">4.2.8.2.</span> <span class="nav-text">为了避免饥饿，如果等待时间超过阈值STARVELIMIT，将job提升到最高优先级Q1：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#权衡：尽管上述提到的升迁可以减轻饥饿，太过频繁的升迁会取消离散化的好处。为了集群操作提供一个单独的开关（PROMOTEKNOB）以升迁job，如果等待时间太长（δ）大于job的执行时间和PROMOTEKNOB之积。"><span class="nav-number">4.2.8.3.</span> <span class="nav-text">权衡：尽管上述提到的升迁可以减轻饥饿，太过频繁的升迁会取消离散化的好处。为了集群操作提供一个单独的开关（PROMOTEKNOB）以升迁job，如果等待时间太长（δ）大于job的执行时间和PROMOTEKNOB之积。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过设定不同的PROMOTEKNOB值可以起到不同的结果。"><span class="nav-number">4.2.8.4.</span> <span class="nav-text">通过设定不同的PROMOTEKNOB值可以起到不同的结果。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#放置"><span class="nav-number">4.3.</span> <span class="nav-text">放置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#如果集群中有足够的资源，Tiresias必须确定是否在尽可能少的PS中合并job的GPU或者分配它们。在实际上，即使集群中有足够的GPU资源，也可以将job置于WAITQUEUE中。根据这个观点，作者提出了一个ILP公式，以最优化地在集群中分配资源，从而最小化并平衡网络负载并不一定提高DL训练的性能。"><span class="nav-number">4.3.1.</span> <span class="nav-text">如果集群中有足够的资源，Tiresias必须确定是否在尽可能少的PS中合并job的GPU或者分配它们。在实际上，即使集群中有足够的GPU资源，也可以将job置于WAITQUEUE中。根据这个观点，作者提出了一个ILP公式，以最优化地在集群中分配资源，从而最小化并平衡网络负载并不一定提高DL训练的性能。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整合有多重要？"><span class="nav-number">4.3.2.</span> <span class="nav-text">整合有多重要？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基于ILP的公式不可行，作者发现模型结构的偏差可以很好的预测。训练模型的性能容易受到整合放置影响，这是因为模型整合中消息尺寸与模型的机构密切相关。因此，DDL中的消息大小分布取决于模型的张量大小分布。而张量大小通常分布不均匀，也就是存在巨大的张量，其中包括这些模型中的大部分参数。因此，聚合较大的张量会更严重地受到网络冲突的影响，而较小的张量的传输倾向于彼此更好的交错。基于此，作者设计了Tiresias-profiler，以找出每个模型的偏斜水平，然后由Tiresias放置算法使用。"><span class="nav-number">4.3.2.1.</span> <span class="nav-text">基于ILP的公式不可行，作者发现模型结构的偏差可以很好的预测。训练模型的性能容易受到整合放置影响，这是因为模型整合中消息尺寸与模型的机构密切相关。因此，DDL中的消息大小分布取决于模型的张量大小分布。而张量大小通常分布不均匀，也就是存在巨大的张量，其中包括这些模型中的大部分参数。因此，聚合较大的张量会更严重地受到网络冲突的影响，而较小的张量的传输倾向于彼此更好的交错。基于此，作者设计了Tiresias profiler，以找出每个模型的偏斜水平，然后由Tiresias放置算法使用。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Profiler"><span class="nav-number">4.3.3.</span> <span class="nav-text">Profiler</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对于给定的job，在不可知框架方式下，profiler识别PS上的大量的张量分布的偏度而不需要用户输入信息。偏度时DLjob张量大小分布和DL框架张量到参数服务器映射的函数。作者希望通过自动识别出偏度而不是依靠用户设计具有相同尺寸张量的DL模型或者对给定DL框架的张量分配算法作出假设。"><span class="nav-number">4.3.3.1.</span> <span class="nav-text">对于给定的job，在不可知框架方式下，profiler识别PS上的大量的张量分布的偏度而不需要用户输入信息。偏度时DLjob张量大小分布和DL框架张量到参数服务器映射的函数。作者希望通过自动识别出偏度而不是依靠用户设计具有相同尺寸张量的DL模型或者对给定DL框架的张量分配算法作出假设。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PS会定期向worker发送更新模型的一部分，因此可以通过观察ps与worker之间的网络童通信，以获得偏度。本文为RDMA网络构建了一个流量监控工具，它可以捕获有关RDMA通信的所有元数据。在Profiler运行期间，Tiresias挥动所有的相关信息以确定Job的Sj。因为从通信角度来看，每次迭代都是完全相同的，所以我们不必分析过多的迭代。这种可预测性还使我们能够识别作业的迭代边界，模型大小和偏斜特征。-Tiresias的放置算法使用此信息来确定作业的GPU分配是否应该合并。"><span class="nav-number">4.3.3.2.</span> <span class="nav-text">PS会定期向worker发送更新模型的一部分，因此可以通过观察ps与worker之间的网络童通信，以获得偏度。本文为RDMA网络构建了一个流量监控工具，它可以捕获有关RDMA通信的所有元数据。在Profiler运行期间，Tiresias挥动所有的相关信息以确定Job的Sj。因为从通信角度来看，每次迭代都是完全相同的，所以我们不必分析过多的迭代。这种可预测性还使我们能够识别作业的迭代边界，模型大小和偏斜特征。 Tiresias的放置算法使用此信息来确定作业的GPU分配是否应该合并。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#放置算法"><span class="nav-number">4.3.4.</span> <span class="nav-text">放置算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Tiresias的放置算法将SJ与阈值（PACKLIMIT）进行比较-如果SJ大于PACKLIMIT，Tiresias试图在尽可能少的机器上整合工作。如上所述，如果没有合并，具有较大偏斜的作业由于通信模式偏斜而表现较差。-对于其余部分，Tiresias在机器中分配GPU以减少碎片。-虽然简单，但这种算法在实践中非常有效（§5）。-它的性能甚至优于之前基于ILP的设计，因为ILP无法捕获不同模型上的合并的不同影响。"><span class="nav-number">4.3.4.1.</span> <span class="nav-text">Tiresias的放置算法将SJ与阈值（PACKLIMIT）进行比较; 如果SJ大于PACKLIMIT，Tiresias试图在尽可能少的机器上整合工作。如上所述，如果没有合并，具有较大偏斜的作业由于通信模式偏斜而表现较差。 对于其余部分，Tiresias在机器中分配GPU以减少碎片。 虽然简单，但这种算法在实践中非常有效（§5）。 它的性能甚至优于之前基于ILP的设计，因为ILP无法捕获不同模型上的合并的不同影响。</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充"><span class="nav-number">5.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GPU即Worker"><span class="nav-number">5.1.</span> <span class="nav-text">GPU即Worker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#中心master"><span class="nav-number">5.2.</span> <span class="nav-text">中心master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式RDMA检测"><span class="nav-number">5.3.</span> <span class="nav-text">分布式RDMA检测</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#评价"><span class="nav-number">6.</span> <span class="nav-text">评价</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验配置："><span class="nav-number">6.1.</span> <span class="nav-text">实验配置：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#60个GPU的集群，15个含有4个GPU的PowerNV-8335-GTB机器，每个机器有4个NVIDIA-Tesla-P100-GPU，显存为16GB，CPU为10核8线程，内存为256GB-DDR4，网络为100GB，分布式存储系统为GPFS，每个机器在GPFS的读写速度为1-2GB-s。"><span class="nav-number">6.1.1.</span> <span class="nav-text">60个GPU的集群，15个含有4个GPU的PowerNV 8335-GTB机器，每个机器有4个NVIDIA Tesla P100 GPU，显存为16GB，CPU为10核8线程，内存为256GB DDR4，网络为100GB，分布式存储系统为GPFS，每个机器在GPFS的读写速度为1.2GB/s。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟器：作者开发了一个基于离散时间的模拟器以评价Tiresias在Microsoft数据上的表现。它可以模型Tiresias中的所有job事件，包括job到达、完成、降级、升级、抢占。他不能决定动态集群环境下job的训练事件，相反的它采用实际的job完成时间。"><span class="nav-number">6.1.2.</span> <span class="nav-text">模拟器：作者开发了一个基于离散时间的模拟器以评价Tiresias在Microsoft数据上的表现。它可以模型Tiresias中的所有job事件，包括job到达、完成、降级、升级、抢占。他不能决定动态集群环境下job的训练事件，相反的它采用实际的job完成时间。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#workload-产生了480个DL-DDLjob根据微软的数据集。job的需求（GPU数目、训练时间）来自于真是的痕迹。job中一半为单GPU的DLjob，另一半为DDLjob（40个2-GPUjob、80个4-GPUjob、90个8-GPUjob、25个16-GPUjob、5个32-GPUjob）。DDKjob中的PS数目与GPU数目相同。每个job进行了一定数目的迭代运行。job训练时间从2分钟到2小时。job到达平均间隔事件为30s。在TensorFlow-1-3-1和RDMA网络上运行模型。"><span class="nav-number">6.1.3.</span> <span class="nav-text">workload 产生了480个DL/DDLjob根据微软的数据集。job的需求（GPU数目、训练时间）来自于真是的痕迹。job中一半为单GPU的DLjob，另一半为DDLjob（40个2-GPUjob、80个4-GPUjob、90个8-GPUjob、25个16-GPUjob、5个32-GPUjob）。DDKjob中的PS数目与GPU数目相同。每个job进行了一定数目的迭代运行。job训练时间从2分钟到2小时。job到达平均间隔事件为30s。在TensorFlow 1.3.1和RDMA网络上运行模型。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工作箱-根据job的空间（GPU数目）和时间（执行时间）分类。"><span class="nav-number">6.1.4.</span> <span class="nav-text">工作箱 根据job的空间（GPU数目）和时间（执行时间）分类。</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原始数据："><span class="nav-number">6.1.4.1.</span> <span class="nav-text">原始数据：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#small-job：少于8GPU"><span class="nav-number">6.1.4.2.</span> <span class="nav-text">small job：少于8GPU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#short-job：少于4个小时"><span class="nav-number">6.1.4.3.</span> <span class="nav-text">short job：少于4个小时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#按比例缩小后："><span class="nav-number">6.1.4.4.</span> <span class="nav-text">按比例缩小后：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#small-job：少于4GPU"><span class="nav-number">6.1.4.5.</span> <span class="nav-text">small job：少于4GPU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#short-job：少于800s"><span class="nav-number">6.1.4.6.</span> <span class="nav-text">short job：少于800s</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基准线"><span class="nav-number">6.1.5.</span> <span class="nav-text">基准线</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Apache-Yarn中的YARN-CS作为基准算法"><span class="nav-number">6.1.5.1.</span> <span class="nav-text">Apache Yarn中的YARN-CS作为基准算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测量"><span class="nav-number">6.1.6.</span> <span class="nav-text">测量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验1：真实环境下的实验"><span class="nav-number">6.2.</span> <span class="nav-text">实验1：真实环境下的实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验2：模拟环境下的实验"><span class="nav-number">6.3.</span> <span class="nav-text">实验2：模拟环境下的实验</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  
+  <span class="author" itemprop="copyrightHolder">xinyueSun</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash;  v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+<script type="text/javascript">
+    //微信二维码点击背景关闭
+    $('body').delegate('.-mob-share-weixin-qrcode-bg','click', function(){
+         $(".-mob-share-weixin-qrcode-close").trigger("click");
+    }); 
+</script>
+
+  <script type="text/javascript" src="/js/src/dytitle.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
