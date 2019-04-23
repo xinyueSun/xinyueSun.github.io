@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://sunxinyue.top/"/>
-  <updated>2019-04-18T03:54:52.185Z</updated>
+  <updated>2019-04-10T06:30:52.130Z</updated>
   <id>http://sunxinyue.top/</id>
   
   <author>
@@ -15,28 +15,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title></title>
-    <link href="http://sunxinyue.top/2019/04/23/Tiresias%EF%BC%9A%20A%20GPU%20Cluster%20Manager%20for%20Distributed%20Deep%20Learning/"/>
-    <id>http://sunxinyue.top/2019/04/23/Tiresias： A GPU Cluster Manager for Distributed Deep Learning/</id>
-    <published>2019-04-23T06:13:55.750Z</published>
-    <updated>2019-04-18T03:54:52.185Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css&quot;&gt;&lt;h1 id=&quot;摘要&quot;&gt;&lt;a href=&quot;#摘要&quot;
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
   
   <entry>
     <title>文献调研方案</title>
