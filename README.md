@@ -1,5 +1,8 @@
 # Xinyue Sun Academic Homepage
 
+[![Homepage](https://img.shields.io/badge/homepage-online-1769aa)](https://xinyuesun.github.io/)
+[![Static site check](https://github.com/xinyueSun/xinyueSun.github.io/actions/workflows/static-site-check.yml/badge.svg)](https://github.com/xinyueSun/xinyueSun.github.io/actions/workflows/static-site-check.yml)
+
 This repository contains the source for Xinyue Sun's academic homepage, published with GitHub Pages.
 
 Live site:
