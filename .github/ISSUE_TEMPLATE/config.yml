@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Live homepage
+    url: https://xinyuesun.github.io/
+    about: View the published academic homepage.
+  - name: Content template
+    url: https://github.com/xinyueSun/xinyueSun.github.io/blob/main/%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF%E5%A1%AB%E5%86%99%E8%A1%A8.md
+    about: Use the Chinese content template to prepare homepage information.
