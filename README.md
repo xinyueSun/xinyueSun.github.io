@@ -17,6 +17,7 @@ https://xinyuesun.github.io/
 - `sitemap.xml`: search engine sitemap
 - `robots.txt`: crawler instructions
 - `CONTENT_TEMPLATE.md`: information template for future content updates
+- `个人信息填写表.md`: Chinese content collection template
 - `MAINTENANCE.md`: update and publishing guide
 - `REFERENCES.md`: public sources used to bootstrap the site
 
@@ -36,7 +37,7 @@ https://xinyuesun.github.io/
 - Recruiting language
 - Full publication ordering and any preferred paper/code links
 
-Use `CONTENT_TEMPLATE.md` to collect the missing information.
+Use `CONTENT_TEMPLATE.md` or `个人信息填写表.md` to collect the missing information.
 
 ## Maintenance
 
