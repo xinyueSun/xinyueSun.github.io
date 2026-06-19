@@ -1,6 +1,12 @@
 # Xinyue Sun Academic Homepage
 
-This repository contains the source for Xinyue Sun's academic homepage, designed for GitHub Pages.
+This repository contains the source for Xinyue Sun's academic homepage, published with GitHub Pages.
+
+Live site:
+
+```text
+https://xinyuesun.github.io/
+```
 
 ## Structure
 
@@ -8,25 +14,45 @@ This repository contains the source for Xinyue Sun's academic homepage, designed
 - `assets/styles.css`: visual design
 - `assets/js/main.js`: small interactions
 - `assets/images/profile.jpg`: profile portrait
+- `sitemap.xml`: search engine sitemap
+- `robots.txt`: crawler instructions
+- `CONTENT_TEMPLATE.md`: information template for future content updates
+- `MAINTENANCE.md`: update and publishing guide
+- `REFERENCES.md`: public sources used to bootstrap the site
 
-## Content To Fill Next
+## Current Content
 
-- Replace placeholder news items with real updates
-- Add selected publications with paper/code links
-- Add project descriptions and images
-- Add academic service, awards, teaching, and student information
-- Update the profile photo if a higher-quality portrait is preferred
+- Profile, contact, research interests, and selected publications are already populated.
+- Projects, academic service, honors, teaching, students, and recruiting sections are scaffolded for owner-confirmed updates.
+- SEO metadata, Open Graph preview metadata, structured data, sitemap, and robots file are included.
+
+## Next Content To Confirm
+
+- Academic services
+- Honors and awards
+- Grants and projects
+- Teaching
+- Students and alumni
+- Recruiting language
+- Full publication ordering and any preferred paper/code links
+
+Use `CONTENT_TEMPLATE.md` to collect the missing information.
+
+## Maintenance
+
+See:
+
+```text
+MAINTENANCE.md
+REFERENCES.md
+```
 
 ## Publish
 
-For a user GitHub Pages site, push this folder to a repository named:
+This is a user GitHub Pages repository:
 
 ```text
-xinyueSun.github.io
+xinyueSun/xinyueSun.github.io
 ```
 
-GitHub will publish it at:
-
-```text
-https://xinyueSun.github.io
-```
+GitHub publishes the `main` branch at `https://xinyuesun.github.io/`.
