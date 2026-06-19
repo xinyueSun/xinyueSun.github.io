@@ -26,6 +26,31 @@ body {
   line-height: 1.65;
 }
 
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(221, 228, 234, 0.86);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  width: min(980px, calc(100% - 32px));
+  min-height: 52px;
+  margin: 0 auto;
+}
+
+.topnav a {
+  color: var(--deep);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
@@ -194,9 +219,23 @@ dd {
   gap: 14px;
 }
 
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
 .interest-grid article {
   min-height: 156px;
   padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.project-grid article {
+  min-height: 150px;
+  padding: 20px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--paper);
@@ -272,6 +311,11 @@ dd {
   gap: 22px;
 }
 
+.note {
+  max-width: 780px;
+  color: var(--deep);
+}
+
 .footer {
   width: min(980px, calc(100% - 32px));
   margin: 0 auto;
@@ -281,6 +325,22 @@ dd {
 }
 
 @media (max-width: 760px) {
+  .topbar {
+    position: static;
+  }
+
+  .topnav {
+    justify-content: flex-start;
+    gap: 12px;
+    overflow-x: auto;
+    min-height: 48px;
+    padding: 0 2px;
+  }
+
+  .topnav a {
+    flex: 0 0 auto;
+  }
+
   .profile {
     grid-template-columns: 1fr;
     gap: 28px;
@@ -305,6 +365,7 @@ dd {
   }
 
   .interest-grid,
+  .project-grid,
   .split,
   .contact-grid {
     grid-template-columns: 1fr;
