@@ -1,0 +1,68 @@
+name: Homepage content update
+description: Submit information to update the academic homepage
+title: "Content update: "
+labels:
+  - content
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to provide confirmed information for the academic homepage.
+        It is fine to leave irrelevant fields blank.
+  - type: textarea
+    id: profile
+    attributes:
+      label: Profile updates
+      description: Name, title, affiliation, office, email, links, or biography changes.
+      placeholder: |
+        English bio:
+        Chinese bio:
+        Affiliation:
+        Office:
+    validations:
+      required: false
+  - type: textarea
+    id: news
+    attributes:
+      label: News
+      description: Add newest items first, preferably in YYYY.MM format.
+      placeholder: |
+        2026.06: ...
+        2026.05: ...
+    validations:
+      required: false
+  - type: textarea
+    id: publications
+    attributes:
+      label: Publications
+      description: Include title, authors, venue, year, and links.
+      placeholder: |
+        Title:
+        Authors:
+        Venue:
+        Year:
+        Paper link:
+        Code link:
+        Note:
+    validations:
+      required: false
+  - type: textarea
+    id: service_awards
+    attributes:
+      label: Services, awards, teaching, students, and recruiting
+      description: Add any owner-confirmed information for these sections.
+      placeholder: |
+        Academic services:
+        Honors and awards:
+        Teaching:
+        Students:
+        Recruiting:
+    validations:
+      required: false
+  - type: textarea
+    id: sources
+    attributes:
+      label: Source or verification links
+      description: Add links to publisher pages, official pages, CVs, or other authoritative sources.
+    validations:
+      required: false
