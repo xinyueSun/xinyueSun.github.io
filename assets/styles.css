@@ -75,6 +75,15 @@ a:focus {
   padding: 42px 0 24px;
 }
 
+.not-found {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 78vh;
+  max-width: 680px;
+  padding: 48px 0;
+}
+
 .profile-copy {
   max-width: 650px;
 }
