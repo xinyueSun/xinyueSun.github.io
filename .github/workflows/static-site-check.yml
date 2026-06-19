@@ -1,0 +1,48 @@
+name: Static site check
+
+"on":
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required files
+        run: |
+          test -f index.html
+          test -f assets/styles.css
+          test -f assets/js/main.js
+          test -f assets/images/profile.jpg
+          test -f favicon.svg
+          test -f 404.html
+          test -f sitemap.xml
+          test -f robots.txt
+
+      - name: Validate homepage content
+        run: |
+          grep -q "Xinyue Sun" index.html
+          grep -q "孙新越" index.html
+          grep -q "xysun@hit.edu.cn" index.html
+          grep -q "Google Scholar" index.html
+          grep -q "Selected Publications" index.html
+          grep -q "GeoRecover" index.html
+          grep -q "favicon.svg" index.html
+          ! grep -q "sunxys@hit.edu.cn" index.html
+          ! grep -q "Publication Title" index.html
+          ! grep -q "TODO" index.html
+
+      - name: Validate support files
+        run: |
+          grep -q "Page Not Found" 404.html
+          grep -q "https://xinyuesun.github.io/" sitemap.xml
+          grep -q "Sitemap: https://xinyuesun.github.io/sitemap.xml" robots.txt
+          grep -q "<svg" favicon.svg
