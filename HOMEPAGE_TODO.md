@@ -26,14 +26,12 @@ This checklist tracks the remaining owner-confirmed content needed to complete t
 - [x] News section
 - [x] Research interests summarized in profile tags and biography
 - [x] Selected publications
-- [x] Experience and selected funding
 - [x] Academic services
 - [x] Honors and awards
 - [x] Mentorship and student roster
-- [x] Recruiting information
+- [x] Mentorship philosophy and recruiting scope
 - [ ] Confirmed project descriptions
 - [ ] Confirmed teaching information
-- [x] Confirmed recruiting text
 
 ## Site Infrastructure
 
