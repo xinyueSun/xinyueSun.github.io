@@ -41,6 +41,10 @@ jobs:
           ! grep -q "sunxys@hit.edu.cn" index.html
           ! grep -q "Publication Title" index.html
           ! grep -q "TODO" index.html
+          ! grep -qi "after confirmation" index.html
+          ! grep -qi "will be updated" index.html
+          ! grep -qi "can be added" index.html
+          ! grep -qi "can be listed" index.html
 
       - name: Validate support files
         run: |
