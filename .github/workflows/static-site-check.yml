@@ -35,6 +35,12 @@ jobs:
           grep -q "Google Scholar" index.html
           grep -q "Selected Publications" index.html
           grep -q "GeoRecover" index.html
+          grep -q "Associate Research Professor" index.html
+          grep -q "CCF-A" index.html
+          grep -q "Awards &amp; Honors" index.html
+          grep -q "Academic Services" index.html
+          grep -q "Mentorship" index.html
+          grep -q "Join Us" index.html
           grep -q "favicon.svg" index.html
           grep -q "nav-toggle" index.html
           grep -q "#nav-menu" assets/js/main.js
@@ -46,6 +52,7 @@ jobs:
           ! grep -qi "will be updated" index.html
           ! grep -qi "can be added" index.html
           ! grep -qi "can be listed" index.html
+          ! grep -qi "pending confirmation" index.html
 
       - name: Validate support files
         run: |

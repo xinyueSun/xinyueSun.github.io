@@ -1,92 +1,80 @@
-# Current Homepage Content Snapshot
+# Current Homepage Content
 
-This document summarizes the content currently reflected on the live homepage. Use it as a review sheet before sending corrections or additional information.
-
-Live site: https://xinyuesun.github.io/
+This file records the owner-confirmed content currently published on the homepage.
 
 ## Profile
 
 - Name: Xinyue Sun / 孙新越
-- Role: Master Supervisor
-- Affiliation: Faculty of Computing / School of Cyberspace Science, Harbin Institute of Technology
+- Position: Associate Research Professor, Faculty of Computing, Harbin Institute of Technology
+- Supervision: Master's Supervisor in Cyberspace Security and Electronic Information
+- Additional appointment: Postdoctoral Fellow, Department of Electrical and Electronic Engineering, The Hong Kong Polytechnic University
 - Email: xysun@hit.edu.cn
-- Office: Room J1706, Science and Innovation Building
-- Links:
-  - HIT Homepage: https://homepage.hit.edu.cn/sunxinyue?lang=zh
-  - Google Scholar: https://scholar.google.com.hk/citations?user=XTwTE8oAAAAJ&hl=zh-CN
-  - GitHub: https://github.com/xinyueSun
+- Office: Room J1706, Science and Innovation Building, Harbin Institute of Technology
 
-## Current Biography
+## Education and Research
 
-I am currently with the Faculty of Computing at Harbin Institute of Technology. My research focuses on data security and privacy protection, especially privacy-preserving data analysis, local differential privacy, spatio-temporal data privacy, and trustworthy data mining.
+- Ph.D. in Computer Science, Beihang University, 2024
+- Research directions: Agent Security and Data Security
+- Agent Security: security and privacy in interaction, memory, tool use, and multi-agent collaboration
+- Data Security: security and privacy in collection, storage, analysis, sharing, and open access
 
-My work aims to develop practical privacy technologies for data-driven systems.
+## Selected Funding
 
-## Research Interests
+- National Natural Science Foundation of China Young Scientists Fund
+- National research program
+- National Postdoctoral Researcher Funding Program
 
-- Data Security
-- Privacy Protection
-- Data Mining
-- Cloud Computing
+## Experience
 
-## Recent News
+- Apr 2026-present: Associate Research Professor, Faculty of Computing, HIT
+- Apr 2026-present: Postdoctoral Fellow, Department of EEE, PolyU; co-supervisor Prof. Haibo Hu
+- Oct 2025-present: Master's Supervisor in Cyberspace Security, HIT
+- Jan 2024-present: Postdoctoral Fellow, Faculty of Computing, HIT; co-supervisor Prof. Weizhe Zhang
+- Jan 2024-Jul 2026: Assistant Researcher, Faculty of Computing, HIT
+- Jul 2021-Jul 2022: Research Assistant, Department of EEE, PolyU
 
-- 2026.06: Personal academic homepage rebuilt and published with GitHub Pages.
-- 2025: Paper on geometric perturbation of DP-SGD appears in IEEE ICDE 2025.
-- 2025: GeoRecover is published in IEEE Transactions on Knowledge and Data Engineering.
-- 2025: DPDeno is published in IEEE Transactions on Information Forensics and Security.
-- 2024: LDPRecover appears in IEEE ICDE 2024.
+## Publications
 
-## Selected Publications
+The public homepage lists 12 selected publications:
 
-1. Analyzing and Optimizing Perturbation of DP-SGD Geometrically  
-   Jiawei Duan, Haibo Hu, Qingqing Ye, Xinyue Sun  
-   IEEE International Conference on Data Engineering, ICDE 2025.
+- TDSC 2025: RATR (CCF-A)
+- TIFS 2025: DPDeno (CCF-A)
+- TKDE 2025: GeoRecover (CCF-A)
+- TKDE 2025: Analyzing and Enhancing LDP Perturbation Mechanisms in Federated Learning (CCF-A)
+- ICDE 2025: Analyzing and Optimizing Perturbation of DP-SGD Geometrically (CCF-A)
+- 网络与信息安全学报 2024: 轨迹数据的差分隐私保护方法综述 (T1)
+- TIFS 2024: Generating Location Traces with Semantic-Constrained Local Differential Privacy (CCF-A)
+- ICDE 2024: LDPRecover (CCF-A)
+- IJMLC 2024: GNNRI (SCI)
+- TKDE 2024: LDPTube (CCF-A)
+- TKDE 2023: PUTS (CCF-A)
+- TITS 2023: Synthesizing Realistic Trajectory Data with Differential Privacy (CCF-B)
 
-2. GeoRecover: Recovery from Poisoning Attacks for LDP-enabled Spatial Density Aggregation  
-   Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Hui He, Weizhe Zhang  
-   IEEE Transactions on Knowledge and Data Engineering, 37(10): 5919-5933, 2025.
+## Awards and Honors
 
-3. DPDeno: A Post-Processing Framework for Releasing Differentially Private Spatio-Temporal Mobility Features  
-   Xinyue Sun, Xiaoyu Liu, Qingqing Ye, Haibo Hu, Renyu Yang, Hui He, Weizhe Zhang  
-   IEEE Transactions on Information Forensics and Security, 20: 10834-10848, 2025.
-   DOI: https://doi.org/10.1109/TIFS.2025.3611106
+- 2025: Selected for the PC Program
+- 2025: Second Prize, Heilongjiang Provincial Teaching Achievement Award
+- 2025: First Prize for Outstanding Paper, National Conference on Artificial Intelligence Education in Higher Education
+- 2025: Mucang Excellent Postdoctoral Award
+- 2024: First Prize, HIT Teaching Achievement Award
+- 2024: National Postdoctoral Researcher Funding Program
 
-4. LDPRecover: Recovering Frequencies from Poisoning Attacks against Local Differential Privacy  
-   Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Tianyu Wo, Jie Xu, Renyu Yang  
-   IEEE International Conference on Data Engineering, ICDE 2024, pp. 1619-1631.
-   DOI: https://doi.org/10.1109/ICDE60146.2024.00132
+## Academic Services
 
-5. Generating Location Traces with Semantic-Constrained Local Differential Privacy  
-   Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Qiao Xue, Tianyu Wo, Jie Xu, Weizhe Zhang  
-   IEEE Transactions on Information Forensics and Security, 19: 9850-9865, 2024.
+- Executive Committee Member, CCF Technical Committee on Network and System Security
+- Committee Member, CIPS Technical Committee on Big Data Security and Privacy Computing
+- Program Committee Member, IEEE JCC, PAKDD, and other international conferences
 
-6. PUTS: Privacy-Preserving and Utility-Enhancing Framework for Trajectory Synthesization  
-   Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Qiao Xue, Tianyu Wo, Jie Xu  
-   IEEE Transactions on Knowledge and Data Engineering, 36(1): 296-310, 2023.
-   DOI: https://doi.org/10.1109/TKDE.2023.3288154
+## Mentorship
 
-7. Synthesizing Realistic Trajectory Data with Differential Privacy  
-   Xinyue Sun, Qingqing Ye, Haibo Hu, Yuandong Wang, Kai Huang, Tianyu Wo, Jie Xu  
-   IEEE Transactions on Intelligent Transportation Systems, 24(5): 5502-5515, 2023.
-   DOI: https://doi.org/10.1109/TITS.2023.3241290
+- Doctoral: 宋育霖
+- Master's: 程瑞琦, 杨桐苏, 高睿煦, 朱子豪, 刘馥淇
+- Undergraduate: 吴嘉明, 王子睿, 陈思亦
 
-## Deferred Sections Needing Confirmation
+## Recruiting
 
-These sections have prepared content templates but are intentionally hidden from the public homepage until owner-confirmed content is available:
-
-- Projects
-- Academic Services
-- Honors and Awards
-- Teaching
-- Students
-- Recruiting
-
-## Suggested Review Questions
-
-- Should the title and affiliation wording be changed?
-- Should the biography be more formal, shorter, or bilingual?
-- Which publications should be highlighted first?
-- Should any paper links, code links, or project links be added or removed?
-- Should the recruiting section explicitly say whether master's, PhD, or undergraduate students are welcome?
-- Are there honors, grants, services, or teaching items that should be public?
+- Master's students: 2 openings for 2026; 3 team openings for 2027
+- Undergraduate researchers: accepted year-round
+- Thesis supervision is limited to students who join the group in advance
+- Group: Data Intelligence Security Group, within Prof. Weizhe Zhang's team
+- Long-term collaborators: The Hong Kong Polytechnic University and Peng Cheng Laboratory

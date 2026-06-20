@@ -59,7 +59,7 @@
   });
 
   document.addEventListener("click", (event) => {
-    if (window.innerWidth < 768 && navbar && !navbar.contains(event.target)) closeNavigation();
+    if (window.innerWidth < 980 && navbar && !navbar.contains(event.target)) closeNavigation();
   });
 
   document.addEventListener("keydown", (event) => {
@@ -67,7 +67,7 @@
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth >= 768) closeNavigation();
+    if (window.innerWidth >= 980) closeNavigation();
   });
 
   let lastScrollY = window.scrollY;
@@ -78,7 +78,7 @@
       const currentScrollY = window.scrollY;
       navbar?.classList.toggle("scrolled", currentScrollY > 10);
 
-      if (navbar && window.innerWidth < 768) {
+      if (navbar && window.innerWidth < 980) {
         const menuIsOpen = navToggle?.getAttribute("aria-expanded") === "true";
         const shouldHide = currentScrollY > lastScrollY && currentScrollY > 120 && !menuIsOpen;
         navbar.style.transform = shouldHide ? "translateY(-100%)" : "translateY(0)";
@@ -129,6 +129,7 @@
   });
 
   const yearFilter = document.querySelector("#year-filter");
+  const ccfFilter = document.querySelector("#ccf-filter");
   const typeFilter = document.querySelector("#type-filter");
   const filterReset = document.querySelector("#filter-reset");
   const publications = [...document.querySelectorAll(".pub-item")];
@@ -136,13 +137,15 @@
 
   const applyPublicationFilters = () => {
     const selectedYear = yearFilter?.value || "all";
+    const selectedCcf = ccfFilter?.value || "all";
     const selectedType = typeFilter?.value || "all";
     let count = 0;
 
     publications.forEach((publication) => {
       const yearMatches = selectedYear === "all" || publication.dataset.year === selectedYear;
+      const ccfMatches = selectedCcf === "all" || publication.dataset.ccf === selectedCcf;
       const typeMatches = selectedType === "all" || publication.dataset.type === selectedType;
-      const isVisible = yearMatches && typeMatches;
+      const isVisible = yearMatches && ccfMatches && typeMatches;
       publication.classList.toggle("is-filtered-out", !isVisible);
       if (isVisible) count += 1;
     });
@@ -151,9 +154,11 @@
   };
 
   yearFilter?.addEventListener("change", applyPublicationFilters);
+  ccfFilter?.addEventListener("change", applyPublicationFilters);
   typeFilter?.addEventListener("change", applyPublicationFilters);
   filterReset?.addEventListener("click", () => {
     if (yearFilter) yearFilter.value = "all";
+    if (ccfFilter) ccfFilter.value = "all";
     if (typeFilter) typeFilter.value = "all";
     applyPublicationFilters();
   });

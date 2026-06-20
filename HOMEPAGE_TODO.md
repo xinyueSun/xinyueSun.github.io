@@ -10,33 +10,30 @@ This checklist tracks the remaining owner-confirmed content needed to complete t
 - [x] Office
 - [x] Research direction
 - [x] Profile photo
-- [ ] Final English biography
+- [x] Final English biography based on owner-provided profile
 - [ ] Final Chinese biography, if desired
 
 ## Publications
 
 - [x] Initial selected publication list
-- [ ] Owner-confirmed publication ordering
-- [ ] Preferred paper links
+- [x] Owner-confirmed publication ordering
+- [x] Preferred paper links where available
 - [ ] Preferred code/project links
 - [ ] Publication images or thumbnails, if desired
 
 ## Homepage Sections
 
 - [x] News section
-- [x] Research interests
+- [x] Research interests summarized in profile tags and biography
 - [x] Selected publications
-- [x] Projects content scaffold (hidden until confirmed)
-- [x] Academic services content scaffold (hidden until confirmed)
-- [x] Honors and awards content scaffold (hidden until confirmed)
-- [x] Teaching and students content scaffold (hidden until confirmed)
-- [x] Recruiting scaffold
+- [x] Experience and selected funding
+- [x] Academic services
+- [x] Honors and awards
+- [x] Mentorship and student roster
+- [x] Recruiting information
 - [ ] Confirmed project descriptions
-- [ ] Confirmed academic services
-- [ ] Confirmed honors and awards
 - [ ] Confirmed teaching information
-- [ ] Confirmed students and alumni
-- [ ] Confirmed recruiting text
+- [x] Confirmed recruiting text
 
 ## Site Infrastructure
 
