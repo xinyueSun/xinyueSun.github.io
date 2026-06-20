@@ -20,7 +20,7 @@ Live site: https://xinyuesun.github.io/
 
 I am currently with the Faculty of Computing at Harbin Institute of Technology. My research focuses on data security and privacy protection, especially privacy-preserving data analysis, local differential privacy, spatio-temporal data privacy, and trustworthy data mining.
 
-I am interested in building practical privacy technologies for data-driven systems. Prospective students and collaborators are welcome to get in touch.
+My work aims to develop practical privacy technologies for data-driven systems.
 
 ## Research Interests
 
@@ -50,10 +50,12 @@ I am interested in building practical privacy technologies for data-driven syste
 3. DPDeno: A Post-Processing Framework for Releasing Differentially Private Spatio-Temporal Mobility Features  
    Xinyue Sun, Xiaoyu Liu, Qingqing Ye, Haibo Hu, Renyu Yang, Hui He, Weizhe Zhang  
    IEEE Transactions on Information Forensics and Security, 20: 10834-10848, 2025.
+   DOI: https://doi.org/10.1109/TIFS.2025.3611106
 
 4. LDPRecover: Recovering Frequencies from Poisoning Attacks against Local Differential Privacy  
    Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Tianyu Wo, Jie Xu, Renyu Yang  
    IEEE International Conference on Data Engineering, ICDE 2024, pp. 1619-1631.
+   DOI: https://doi.org/10.1109/ICDE60146.2024.00132
 
 5. Generating Location Traces with Semantic-Constrained Local Differential Privacy  
    Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Qiao Xue, Tianyu Wo, Jie Xu, Weizhe Zhang  
@@ -62,14 +64,16 @@ I am interested in building practical privacy technologies for data-driven syste
 6. PUTS: Privacy-Preserving and Utility-Enhancing Framework for Trajectory Synthesization  
    Xinyue Sun, Qingqing Ye, Haibo Hu, Jiawei Duan, Qiao Xue, Tianyu Wo, Jie Xu  
    IEEE Transactions on Knowledge and Data Engineering, 36(1): 296-310, 2023.
+   DOI: https://doi.org/10.1109/TKDE.2023.3288154
 
 7. Synthesizing Realistic Trajectory Data with Differential Privacy  
    Xinyue Sun, Qingqing Ye, Haibo Hu, Yuandong Wang, Kai Huang, Tianyu Wo, Jie Xu  
    IEEE Transactions on Intelligent Transportation Systems, 24(5): 5502-5515, 2023.
+   DOI: https://doi.org/10.1109/TITS.2023.3241290
 
-## Scaffolded Sections Needing Confirmation
+## Deferred Sections Needing Confirmation
 
-These sections exist on the homepage but still need owner-confirmed content:
+These sections have prepared content templates but are intentionally hidden from the public homepage until owner-confirmed content is available:
 
 - Projects
 - Academic Services
