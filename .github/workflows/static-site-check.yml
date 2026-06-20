@@ -37,7 +37,8 @@ jobs:
           grep -q "GeoRecover" index.html
           grep -q "favicon.svg" index.html
           grep -q "nav-toggle" index.html
-          grep -q "site-navigation" assets/js/main.js
+          grep -q "#nav-menu" assets/js/main.js
+          grep -q "#theme-toggle" assets/js/main.js
           ! grep -q "sunxys@hit.edu.cn" index.html
           ! grep -q "Publication Title" index.html
           ! grep -q "TODO" index.html
