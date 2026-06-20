@@ -51,18 +51,27 @@
   </script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="topbar">
-    <nav class="topnav" aria-label="Section navigation">
-      <a href="#home">Home</a>
-      <a href="#research">Research</a>
-      <a href="#publications">Publications</a>
-      <a href="#projects">Projects</a>
-      <a href="#teaching">Teaching</a>
-      <a href="#contact">Contact</a>
-    </nav>
+    <div class="topbar-inner">
+      <a class="site-name" href="#home">Xinyue Sun</a>
+      <button class="nav-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" aria-label="Open navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="topnav" id="site-navigation" aria-label="Section navigation">
+        <a href="#home">Home</a>
+        <a href="#research">Research</a>
+        <a href="#publications">Publications</a>
+        <a href="#projects">Projects</a>
+        <a href="#teaching">Teaching</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="page">
+  <main class="page" id="main-content">
     <section class="profile" id="home">
       <div class="profile-copy">
         <p class="eyebrow">Harbin Institute of Technology</p>
