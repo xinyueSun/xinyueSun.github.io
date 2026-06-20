@@ -45,10 +45,16 @@ This checklist tracks the remaining owner-confirmed content needed to complete t
 - [x] Responsive CSS
 - [x] Sitemap
 - [x] Robots file
+- [x] Custom 404 page
+- [x] Site favicon
 - [x] SEO metadata
 - [x] Structured data
+- [x] Automated static-site validation
+- [x] Repository description, homepage, and topics
 - [x] English content template
 - [x] Chinese content template
+- [x] Current-content snapshot
 - [x] Maintenance guide
 - [x] Source reference notes
 - [x] GitHub issue template for content updates
+- [x] GitHub tracking issue for owner-confirmed content
