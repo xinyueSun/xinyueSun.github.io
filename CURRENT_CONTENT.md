@@ -62,9 +62,9 @@ The public homepage lists 12 selected publications:
 - Independently recruits master's students
 - Prospective Ph.D. students may be jointly recruited and supervised with Prof. Weizhe Zhang and Prof. Hui He
 - Current research directions for prospective students: Agent Security and Data Security
-- Doctoral: 宋育霖
-- Master's: 程瑞琦, 杨桐苏, 高睿煦, 朱子豪, 刘馥淇
-- Undergraduate: 吴嘉明, 王子睿, 陈思亦
+- Doctoral: Yulin Song
+- Master's: Ruiqi Cheng, Tongsu Yang, Ruixu Gao, Zihao Zhu, Fuqi Liu, Hao Sun
+- Undergraduate: Jiaming Wu, Zirui Wang, Siyi Chen
 
 ## Public Links
 
