@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         Use this form to provide confirmed information for the academic homepage.
-        It is fine to leave irrelevant fields blank.
+        Leave unrelated fields blank and include authoritative links whenever possible.
   - type: textarea
     id: profile
     attributes:
@@ -25,7 +25,7 @@ body:
     id: news
     attributes:
       label: News
-      description: Add newest items first, preferably in YYYY.MM format.
+      description: Add newest items first. Include the display month and year.
       placeholder: |
         2026.06: ...
         2026.05: ...
@@ -35,28 +35,39 @@ body:
     id: publications
     attributes:
       label: Publications
-      description: Include title, authors, venue, year, and links.
+      description: Include title, complete author order, venue, year, CCF rank, publication type, and links.
       placeholder: |
         Title:
         Authors:
         Venue:
         Year:
+        CCF rank (A/B/T1/Other):
+        Type (journal/conference):
         Paper link:
         Code link:
         Note:
     validations:
       required: false
   - type: textarea
-    id: service_awards
+    id: awards_services
     attributes:
-      label: Services, awards, teaching, students, and recruiting
-      description: Add any owner-confirmed information for these sections.
+      label: Awards and academic services
+      description: Include the official English name, organization, role, and year where applicable.
       placeholder: |
-        Academic services:
         Honors and awards:
-        Teaching:
+        Academic services:
+    validations:
+      required: false
+  - type: textarea
+    id: mentorship
+    attributes:
+      label: Mentorship updates
+      description: Add, remove, or revise students and co-supervision information.
+      placeholder: |
         Students:
-        Recruiting:
+        Degree and class year:
+        Co-supervisor:
+        Recruiting or mentorship note:
     validations:
       required: false
   - type: textarea

@@ -1,55 +1,29 @@
-# Homepage Completion Checklist
+# Homepage Status
 
-This checklist tracks the remaining owner-confirmed content needed to complete the academic homepage.
+The academic homepage is complete and published at https://xinyuesun.github.io/.
 
-## Profile
+## Completed
 
-- [x] Name
-- [x] Affiliation
-- [x] Email
-- [x] Office
-- [x] Research direction
-- [x] Profile photo
-- [x] Final English biography based on owner-provided profile
-- [ ] Final Chinese biography, if desired
-
-## Publications
-
-- [x] Initial selected publication list
-- [x] Owner-confirmed publication ordering
-- [x] Preferred paper links where available
-- [ ] Preferred code/project links
-- [ ] Publication images or thumbnails, if desired
-
-## Homepage Sections
-
-- [x] News section
-- [x] Research interests summarized in profile tags and biography
-- [x] Selected publications
-- [x] Academic services
-- [x] Honors and awards
-- [x] Mentorship and student roster
+- [x] Profile, affiliation, contact details, and portrait
+- [x] English biography and research directions
 - [x] Mentorship philosophy and recruiting scope
-- [ ] Confirmed project descriptions
-- [ ] Confirmed teaching information
+- [x] Latest news
+- [x] Selected publications with year, type, and CCF filters
+- [x] Awards and honors
+- [x] Academic services
+- [x] Student mentorship roster
+- [x] Responsive desktop and mobile layout
+- [x] Dark mode, mobile navigation, and accessible structure
+- [x] SEO metadata, structured data, sitemap, robots file, favicon, and 404 page
+- [x] GitHub Pages publishing and automated validation
+- [x] Current-content snapshot, update guide, source record, and GitHub update form
 
-## Site Infrastructure
+## Optional Future Enhancements
 
-- [x] GitHub Pages repository
-- [x] Published homepage
-- [x] Responsive CSS
-- [x] Sitemap
-- [x] Robots file
-- [x] Custom 404 page
-- [x] Site favicon
-- [x] SEO metadata
-- [x] Structured data
-- [x] Automated static-site validation
-- [x] Repository description, homepage, and topics
-- [x] English content template
-- [x] Chinese content template
-- [x] Current-content snapshot
-- [x] Maintenance guide
-- [x] Source reference notes
-- [x] GitHub issue template for content updates
-- [x] GitHub tracking issue for owner-confirmed content
+These are not required for the current homepage:
+
+- [ ] Chinese-language version
+- [ ] ORCID or DBLP profile links
+- [ ] Code and project links for selected publications
+- [ ] Teaching section when public course information is available
+- [ ] Alumni destinations when confirmed

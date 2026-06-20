@@ -7,6 +7,8 @@ This file records the owner-confirmed content currently published on the homepag
 - Name: Xinyue Sun / 孙新越
 - Position: Associate Research Fellow, Faculty of Computing, Harbin Institute of Technology
 - Additional appointment: Postdoctoral Fellow, Department of Electrical and Electronic Engineering, The Hong Kong Polytechnic University
+- HIT collaboration: Prof. Weizhe Zhang
+- PolyU postdoctoral supervisor: Prof. Haibo Hu
 - Email: xysun@hit.edu.cn
 - Office: Room J1706, Science and Innovation Building, Harbin Institute of Technology
 
@@ -16,6 +18,13 @@ This file records the owner-confirmed content currently published on the homepag
 - Research directions: Agent Security and Data Security
 - Agent Security: security and privacy in interaction, memory, tool use, and multi-agent collaboration
 - Data Security: security and privacy in collection, storage, analysis, sharing, and open access
+
+## Latest News
+
+- Apr 2026: Joined PolyU as a Postdoctoral Fellow
+- 2025: Received the Mucang Excellent Postdoctoral Award and multiple teaching and research honors
+- 2025: RATR, DPDeno, GeoRecover, and related work appeared in TDSC, TIFS, and TKDE
+- 2024: Received a Ph.D. in Computer Science from Beihang University and joined HIT as a Postdoctoral Fellow
 
 ## Publications
 
@@ -56,3 +65,10 @@ The public homepage lists 12 selected publications:
 - Doctoral: 宋育霖
 - Master's: 程瑞琦, 杨桐苏, 高睿煦, 朱子豪, 刘馥淇
 - Undergraduate: 吴嘉明, 王子睿, 陈思亦
+
+## Public Links
+
+- Homepage: https://xinyuesun.github.io/
+- HIT profile: https://homepage.hit.edu.cn/sunxinyue?lang=zh
+- Google Scholar: https://scholar.google.com.hk/citations?user=XTwTE8oAAAAJ&hl=zh-CN
+- GitHub: https://github.com/xinyueSun

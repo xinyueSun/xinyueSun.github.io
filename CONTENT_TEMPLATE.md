@@ -54,21 +54,21 @@ Title:
 Authors:
 Venue:
 Year:
+CCF rank (A/B/T1/Other):
+Type (journal/conference):
 Paper link:
 Code link:
 Project link:
 Award or note:
 ```
 
-## Projects
+## Mentorship Updates
 
 ```text
-Project name:
-Role:
-Period:
-Funding source:
-Description:
-Link:
+Student name:
+Degree type and class year:
+Co-supervisor:
+Research topic, optional:
 ```
 
 ## Academic Services
@@ -91,7 +91,22 @@ Organizing committee, session chair, invited talk, or other service:
 - Award name, organization, year:
 - Award name, organization, year:
 
-## Teaching
+## Optional New Sections
+
+Only fill these when the information should become a new public homepage section.
+
+### Projects
+
+```text
+Project name:
+Role:
+Period:
+Funding source:
+Description:
+Link:
+```
+
+### Teaching
 
 ```text
 Course:
@@ -100,17 +115,7 @@ Semester:
 Level:
 ```
 
-## Students
-
-Current students:
-
-- Name, degree, year, topic:
-
-Alumni:
-
-- Name, degree, year, next position:
-
-## Recruiting
+### Recruiting or Mentorship Philosophy
 
 Short note for prospective students:
 

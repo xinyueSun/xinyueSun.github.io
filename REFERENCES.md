@@ -1,45 +1,44 @@
 # Homepage Information Sources
 
-This file records public sources used to bootstrap the academic homepage. It is meant to make future edits easier to audit.
+This file records the primary public sources used to verify homepage information.
 
 ## Layout Reference
 
-- Reference repository: https://github.com/sunqysunqysqy/sunqysunqy.github.io
-- Observed structure: static GitHub Pages site using `index.html`, CSS, JavaScript, and image assets.
+- Reference repository: https://github.com/liqian-bio/liqian-bio.github.io
+- The current site adapts the reference's academic layout while retaining its own responsive design, publication filtering, theme switcher, and content structure.
 
 ## Profile Sources
 
 - HIT faculty homepage: https://homepage.hit.edu.cn/sunxinyue?lang=zh
-- Google Scholar profile: https://scholar.google.com.hk/citations?user=XTwTE8oAAAAJ&hl=zh-CN
+- Google Scholar: https://scholar.google.com.hk/citations?user=XTwTE8oAAAAJ&hl=zh-CN
+- Prof. Weizhe Zhang: https://homepage.hit.edu.cn/wzzhang
+- Prof. Haibo Hu: https://www.polyu.edu.hk/eee/people/academic-staff-and-teaching-staff/prof-hu-haibo/
+- Chinese academic-title translation reference: https://imr.cas.cn/gjjl/fwzn_gjjl/qt-gjjlfwzn/200910/t20091026_2590181.html
 
-Profile fields currently reflected on the site:
+Verified profile fields currently reflected on the site:
 
 - Name: Xinyue Sun / 孙新越
-- Affiliation: Harbin Institute of Technology, Faculty of Computing
-- Role: Master Supervisor
-- Research direction: Data security and privacy protection
+- Affiliation: Faculty of Computing, Harbin Institute of Technology
+- Title: Associate Research Fellow
+- Additional appointment: Postdoctoral Fellow, The Hong Kong Polytechnic University
+- Research directions: Agent Security and Data Security
 - Office: Room J1706, Science and Innovation Building
 - Email: xysun@hit.edu.cn
 
 ## Publication Sources
 
-The first version of the publication list was compiled from public scholarly records including:
+Publication metadata was compiled from the owner's confirmed list and checked against public scholarly records, including:
 
-- Google Scholar profile linked above
-- DBLP records
-- IEEE Xplore records
-- arXiv records
-- Public collaborator publication pages where available
+- Publisher and DOI pages
+- Google Scholar
+- DBLP
+- arXiv
 
-Before adding or changing publications, verify the final metadata against at least one authoritative source such as the publisher page, DBLP, arXiv, or the author's Google Scholar profile.
+Before adding or changing a publication, verify the title, author order, venue, year, link, and CCF rank against an authoritative source.
 
-## Items Needing Owner Confirmation
+## Update Policy
 
-The following sections are intentionally conservative and should be completed with direct input from the homepage owner:
-
-- Academic services
-- Honors and awards
-- Grants and funded projects
-- Teaching
-- Current students and alumni
-- Recruiting text
+- Owner-provided information is authoritative for biography, appointments, awards, services, and mentorship.
+- Public links should be used to verify publication metadata and external profiles.
+- Sensitive or masked program names should not be expanded without explicit owner confirmation.
+- `CURRENT_CONTENT.md` should stay aligned with the public homepage after every content update.
