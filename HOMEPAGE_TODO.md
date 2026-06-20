@@ -26,10 +26,10 @@ This checklist tracks the remaining owner-confirmed content needed to complete t
 - [x] News section
 - [x] Research interests
 - [x] Selected publications
-- [x] Projects scaffold
-- [x] Academic services scaffold
-- [x] Honors and awards scaffold
-- [x] Teaching and students scaffold
+- [x] Projects content scaffold (hidden until confirmed)
+- [x] Academic services content scaffold (hidden until confirmed)
+- [x] Honors and awards content scaffold (hidden until confirmed)
+- [x] Teaching and students content scaffold (hidden until confirmed)
 - [x] Recruiting scaffold
 - [ ] Confirmed project descriptions
 - [ ] Confirmed academic services
